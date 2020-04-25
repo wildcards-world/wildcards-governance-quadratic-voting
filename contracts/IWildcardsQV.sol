@@ -4,11 +4,10 @@ import "@nomiclabs/buidler/console.sol";
 
 
 contract IWildcardsQV {
-    constructor(string memory _greeting) public {
-        console.log("Deploying a Greeter with greeting:", _greeting);
-        greeting = _greeting;
-    }
-
+    // constructor(string memory _greeting) public {
+    //     console.log("Deploying a Greeter with greeting:", _greeting);
+    //     greeting = _greeting;
+    // }
     /**
     submitProposal (only admin - centralized)
     - we control this initially (wildcards)

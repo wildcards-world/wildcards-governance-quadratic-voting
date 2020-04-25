@@ -1,4 +1,4 @@
-pragma solidity 0.5.16;
+pragma solidity 0.5.15;
 
 // import "./interfaces/IERC20.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
@@ -58,7 +58,7 @@ contract WildcardsQV is Initializable {
     ///////////////////////////////////
     /////// CreateProposal  ///////////
     ///////////////////////////////////
-    function createProposal(string memory proposalHash)
+    function createProposal(string calldata proposalHash)
         external
         onlyAdmin
         returns (uint256 newProposalId)
@@ -67,8 +67,8 @@ contract WildcardsQV is Initializable {
         proposalId = proposalId.add(1);
 
         proposalDetails[proposalId] = proposalHash;
-        proposalOwner[proposalId] = msg.sender;
-        benefactorsProposal[msg.sender] = proposalId;
+        //proposalOwner[proposalId] = msg.sender;
+        //benefactorsProposal[msg.sender] = proposalId;
         state[proposalId] = ProposalState.Active;
         return proposalId;
     }
