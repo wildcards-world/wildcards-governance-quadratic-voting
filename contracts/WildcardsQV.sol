@@ -42,8 +42,13 @@ contract WildcardsQV is Initializable {
     uint totalVotes;
 
     ////////////////////////////////////
-    //////// Events /////////////////
+    //////// Events ///////////////////
     ////////////////////////////////////
+    event LogNewVotingInterval(uint256 indexed newInterval);
+    event LogProposalStateChange(uint256 indexed proposalIdUpdated, bool isActive);
+    event LogProposalCreated(uint256 indexed newProposalId, address indexed newProposalAddress);
+    event LogVote(uint256 indexed proposalVotedFor, uint256 indexed votesCast, uint256 totalVotesForProposal, uint256 totalVotesAllProposals, address indexed addressOfVoter);
+    event LogFundsDistrubuted(uint256 indexed fundsDistributed, uint256 indexed totalVotes, uint256 winningVotes, uint256 indexed winningProposal, uint256 newDeadline, uint256 newIteration);
 
     ////////////////////////////////////
     //////// Modifiers /////////////////
@@ -73,6 +78,18 @@ contract WildcardsQV is Initializable {
     ///////////////////////////////////
     function changeVotingInterval(uint256 newInterval) external onlyAdmin {
         votingInterval = newInterval;
+        emit LogNewVotingInterval(newInterval);
+    }
+
+    function changeProposalState(uint256 _proposalId, bool newState) external onlyAdmin {
+        // state: true = Active, false = Withdrawn
+        if (newState) {
+            state[_proposalId] = ProposalState.Active;
+        }
+        else {
+            state[_proposalId] = ProposalState.Withdrawn;
+        }
+        emit LogProposalStateChange(_proposalId,newState);
     }
 
     ///////////////////////////////////
@@ -90,6 +107,7 @@ contract WildcardsQV is Initializable {
         //proposalOwner[proposalId] = msg.sender;
         //benefactorsProposal[msg.sender] = proposalId;
         state[proposalId] = ProposalState.Active;
+        emit LogProposalCreated(proposalId,_addressOfCharity);
         return proposalId;
     }
 
@@ -105,8 +123,6 @@ contract WildcardsQV is Initializable {
         require(state[proposalIdToVoteFor] == ProposalState.Active, "Proposal not Active");
         // Check that they haven't yet voted for the proposal in this iteration
         require(!hasUserVotedForProposalIteration[proposalIteration][msg.sender][proposalIdToVoteFor], "Already voted on this proposal");
-        // Approve us to send wildcards tokens on their behalf
-        //    needs to be done front end I think, calling the Loyaly Token contract directly
         // Send their wildcards tokens to the burn address
         require(loyaltyToken.transferFrom(msg.sender,burnAddress,amount), "Loyalty Token transfer failed");
         // Validate the square root
@@ -123,6 +139,7 @@ contract WildcardsQV is Initializable {
             currentWinner = proposalIdToVoteFor;
         }
         totalVotes = totalVotes.add(_currentVoteCount);
+        emit LogVote(proposalIdToVoteFor,sqrt,_currentVoteCount,totalVotes,msg.sender);
     }
 
     ///////////////////////////////////
@@ -131,7 +148,7 @@ contract WildcardsQV is Initializable {
     function distributeFunds() public {
         require(proposalDeadline < now, "iteration interval not ended");
         address _thisAddressNotPayable = address(this);
-        address payable _thisAddress = address(uint160(_thisAddressNotPayable)); // <-- this is required to cast addres to addres payable
+        address payable _thisAddress = address(uint160(_thisAddressNotPayable)); // <-- this is required to cast addres to address payable
         // There wont be a winner in the first iteration
         if (proposalIteration != 0) {
             // Collect patronage on the WildCard
@@ -139,18 +156,18 @@ contract WildcardsQV is Initializable {
             // Transfer patronage to this contract
             wildCardSteward.withdrawBenefactorFundsTo(_thisAddress);
             // Get balance to distrubute
-            uint256 _totalFundsToDistribute = _thisAddress.balance;
+            uint256 _fundsToDistribute = _thisAddress.balance;
             // Send funds to winner
             address payable _addressOfWinner = proposalAddresses[currentWinner];
-            _addressOfWinner.transfer(_totalFundsToDistribute);
-            // Also do the logic of removing proposals / putting them in different leagues, states, etc...
+            _addressOfWinner.transfer(_fundsToDistribute);
+
+            emit LogFundsDistrubuted(_fundsToDistribute,totalVotes,currentHighestVoteCount,currentWinner,now.add(votingInterval),proposalIteration.add(1));
+            // Clean up for next iteration
+            currentHighestVoteCount = 0;
+            totalVotes = 0;
         }
         proposalDeadline = now.add(votingInterval);
-        proposalIteration = proposalIteration.add(1);
-
-        // Clean up for next iteration
-        currentHighestVoteCount = 0;
-        totalVotes = 0;
+        proposalIteration = proposalIteration.add(1); 
     }
 
 }
