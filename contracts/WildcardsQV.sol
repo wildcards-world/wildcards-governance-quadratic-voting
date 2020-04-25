@@ -16,7 +16,7 @@ contract WildcardsQV is Initializable {
     ILoyaltyToken public loyaltyToken;
     IWildCardToken public wildCardToken;
     IWildCardSteward public wildCardSteward;
-    address public addressOfDragonCard;
+    uint public dragonCardId;
 
     //////// Iteration specific //////////
     uint256 public votingInterval;
@@ -61,16 +61,17 @@ contract WildcardsQV is Initializable {
     ////////////////////////////////////
     //////// SETUP CONTRACT////////////
     //// NOTE: Upgradable at the moment
-    function initialize(uint256 _votingInterval, ILoyaltyToken _addressOfLoyalyTokenContract, IWildCardToken _addressOfWildCardTokenContract, IWildCardSteward _addressOfWildCardStewardContract, address _addressOfDragonCard) public initializer {
+    function initialize(uint256 _votingInterval, ILoyaltyToken _addressOfLoyalyTokenContract, IWildCardToken _addressOfWildCardTokenContract, IWildCardSteward _addressOfWildCardStewardContract, uint _dragonCardId) public initializer {
         admin = msg.sender;
         votingInterval = _votingInterval;
 
         proposalDeadline = now.add(_votingInterval);
 
+        // externals:
         loyaltyToken = _addressOfLoyalyTokenContract;
         wildCardToken = _addressOfWildCardTokenContract;
         wildCardSteward = _addressOfWildCardStewardContract;
-        addressOfDragonCard = _addressOfDragonCard;
+        dragonCardId = _dragonCardId;
     }
 
     ///////////////////////////////////
@@ -151,8 +152,10 @@ contract WildcardsQV is Initializable {
         address payable _thisAddress = address(uint160(_thisAddressNotPayable)); // <-- this is required to cast addres to address payable
         // There wont be a winner in the first iteration
         if (proposalIteration != 0) {
+            // Get current patron of Dragon Token
+            address _currentPatron = wildCardSteward.currentPatron(dragonCardId);
             // Collect patronage on the WildCard
-            wildCardSteward._collectPatronagePatron(addressOfDragonCard);
+            wildCardSteward._collectPatronagePatron(_currentPatron);
             // Transfer patronage to this contract
             wildCardSteward.withdrawBenefactorFundsTo(_thisAddress);
             // Get balance to distrubute
