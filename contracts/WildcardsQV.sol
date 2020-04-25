@@ -4,6 +4,7 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol
 import "@nomiclabs/buidler/console.sol";
 import "./interfaces/ILoyaltyToken.sol";
 import "./interfaces/IWildCardToken.sol";
+import "./interfaces/IWildCardSteward.sol";
 
 contract WildcardsQV is Initializable {
     using SafeMath for uint256;
@@ -14,6 +15,8 @@ contract WildcardsQV is Initializable {
     //////// External contract specific //////////
     ILoyaltyToken public loyaltyToken;
     IWildCardToken public wildCardToken;
+    IWildCardSteward public wildCardSteward;
+    address public addressOfDragonCard;
 
     //////// Iteration specific //////////
     uint256 public votingInterval;
@@ -22,7 +25,7 @@ contract WildcardsQV is Initializable {
     ///////// Proposal specific ///////////
     uint256 public proposalId;
     uint256 public proposalDeadline; // keeping track of time
-    mapping(uint256 => string) public proposalDetails;
+    mapping(uint256 => address payable) public proposalAddresses;
     enum ProposalState {DoesNotExist, Withdrawn, Active, Cooldown} // Add Cooldown state and pending state
     mapping(uint256 => ProposalState) public state; // ProposalId to current state
 
@@ -39,6 +42,10 @@ contract WildcardsQV is Initializable {
     uint totalVotes;
 
     ////////////////////////////////////
+    //////// Events /////////////////
+    ////////////////////////////////////
+
+    ////////////////////////////////////
     //////// Modifiers /////////////////
     ////////////////////////////////////
     modifier onlyAdmin() {
@@ -49,7 +56,7 @@ contract WildcardsQV is Initializable {
     ////////////////////////////////////
     //////// SETUP CONTRACT////////////
     //// NOTE: Upgradable at the moment
-    function initialize(uint256 _votingInterval, ILoyaltyToken _addressOfLoyalyTokenContract, IWildCardToken _addressOfWildCardTokenContract) public initializer {
+    function initialize(uint256 _votingInterval, ILoyaltyToken _addressOfLoyalyTokenContract, IWildCardToken _addressOfWildCardTokenContract, IWildCardSteward _addressOfWildCardStewardContract, address _addressOfDragonCard) public initializer {
         admin = msg.sender;
         votingInterval = _votingInterval;
 
@@ -57,6 +64,8 @@ contract WildcardsQV is Initializable {
 
         loyaltyToken = _addressOfLoyalyTokenContract;
         wildCardToken = _addressOfWildCardTokenContract;
+        wildCardSteward = _addressOfWildCardStewardContract;
+        addressOfDragonCard = _addressOfDragonCard;
     }
 
     ///////////////////////////////////
@@ -69,7 +78,7 @@ contract WildcardsQV is Initializable {
     ///////////////////////////////////
     /////// CreateProposal  ///////////
     ///////////////////////////////////
-    function createProposal(string calldata proposalHash)
+    function createProposal(address payable _addressOfCharity)
         external
         onlyAdmin
         returns (uint256 newProposalId)
@@ -77,7 +86,7 @@ contract WildcardsQV is Initializable {
         // So the first proposal will have an ID of 1
         proposalId = proposalId.add(1);
 
-        proposalDetails[proposalId] = proposalHash;
+        proposalAddresses[proposalId] = _addressOfCharity;
         //proposalOwner[proposalId] = msg.sender;
         //benefactorsProposal[msg.sender] = proposalId;
         state[proposalId] = ProposalState.Active;
@@ -93,7 +102,7 @@ contract WildcardsQV is Initializable {
         // Check they have at least 1 wildcards loyalty token:
         require(amount >= 10**18, " Minimum vote one token");
         // Check they are voting for a valid proposal: 
-        // require(proposalDetails[proposalIdToVoteFor]!=0, "Proposal does not exist"); // <-- doesnt work, not sure how to do this atm
+        require(state[proposalIdToVoteFor] == ProposalState.Active, "Proposal not Active");
         // Check that they haven't yet voted for the proposal in this iteration
         require(!hasUserVotedForProposalIteration[proposalIteration][msg.sender][proposalIdToVoteFor], "Already voted on this proposal");
         // Approve us to send wildcards tokens on their behalf
@@ -121,25 +130,19 @@ contract WildcardsQV is Initializable {
     ///////////////////////////////////
     function distributeFunds() public {
         require(proposalDeadline < now, "iteration interval not ended");
-
+        address _thisAddressNotPayable = address(this);
+        address payable _thisAddress = address(uint160(_thisAddressNotPayable)); // <-- this is required to cast addres to addres payable
         // There wont be a winner in the first iteration
         if (proposalIteration != 0) {
-            // Here we send the money to the winner/winners!
-            // Need to call a function that calculates the winners.
-            //    no longer necessary
-            uint256 _totalFundsToDistribute = address(this).balance;
-
-            // Sends funds proportionally, can change if needed
-            // Assumes this contract has the ether, that it is not taken from elsewhere
-            for (uint i = 0; i < proposalId; i++) {
-                address payable _addressOfCharity; // <=-- placeholder, I dont know where to get this from
-                uint256 _voteCount = proposalVotes[proposalIteration][i];
-                uint256 _fundsToDistribute = _totalFundsToDistribute.mul(_voteCount).div(totalVotes);
-                _addressOfCharity.transfer(_fundsToDistribute);
-            }
-
-            // We need to be able to call the wildcards contract to distribute the collected hackathon
-            // To the winners in the ratio determined by the QV
+            // Collect patronage on the WildCard
+            wildCardSteward._collectPatronagePatron(addressOfDragonCard);
+            // Transfer patronage to this contract
+            wildCardSteward.withdrawBenefactorFundsTo(_thisAddress);
+            // Get balance to distrubute
+            uint256 _totalFundsToDistribute = _thisAddress.balance;
+            // Send funds to winner
+            address payable _addressOfWinner = proposalAddresses[currentWinner];
+            _addressOfWinner.transfer(_totalFundsToDistribute);
             // Also do the logic of removing proposals / putting them in different leagues, states, etc...
         }
         proposalDeadline = now.add(votingInterval);
