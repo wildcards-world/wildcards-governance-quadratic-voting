@@ -41,12 +41,8 @@ contract WildcardsQV is Initializable {
     ////////////////////////////////////
     //////// SETUP CONTRACT////////////
     //// NOTE: Upgradable at the moment
-    function initialize(uint256 _proposalAmount, uint256 _votingInterval)
-        public
-        initializer
-    {
+    function initialize(uint256 _votingInterval) public initializer {
         admin = msg.sender;
-        proposalAmount = _proposalAmount;
         votingInterval = _votingInterval;
 
         proposalDeadline = now.add(_votingInterval);
@@ -99,15 +95,15 @@ contract WildcardsQV is Initializable {
     function distributeFunds() public {
         require(proposalDeadline < now, "iteration interval not ended");
 
+        // There wont be a winner in the first iteration
         if (proposalIteration != 0) {
-            address winner = proposalOwner[topProject[proposalIteration]]; // error if no-one voted for in this iteration
-
-            // Here we send the money to the winner!
-            // Also do the league logic. I.e. promote / demote top / bottom projects
-
-            console.log(winner);
+            // Here we send the money to the winner/winners!
+            // Need to call a function that calculates the winners.
+            // We need to be able to call the wildcards contract to distribute the collected hackathon
+            // To the winners in the ratio determined by the QV
+            // Also do the logic of removing proposals / putting them in different leagues, states, etc...
         }
-        proposalDeadline = proposalDeadline.add(votingInterval);
+        proposalDeadline = now.add(votingInterval);
         proposalIteration = proposalIteration.add(1);
     }
 
