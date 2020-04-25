@@ -101,14 +101,13 @@ contract WildcardsQV is Initializable {
         onlyAdmin
         returns (uint256 newProposalId)
     {
-        // So the first proposal will have an ID of 1
-        proposalId = proposalId.add(1);
-
         proposalAddresses[proposalId] = _addressOfCharity;
         //proposalOwner[proposalId] = msg.sender;
         //benefactorsProposal[msg.sender] = proposalId;
         state[proposalId] = ProposalState.Active;
         emit LogProposalCreated(proposalId,_addressOfCharity);
+        // So the first proposal will have an ID of 0
+        proposalId = proposalId.add(1);
         return proposalId;
     }
 
@@ -149,7 +148,7 @@ contract WildcardsQV is Initializable {
     function distributeFunds() public {
         require(proposalDeadline < now, "iteration interval not ended");
         address _thisAddressNotPayable = address(this);
-        address payable _thisAddress = address(uint160(_thisAddressNotPayable)); // <-- this is required to cast addres to address payable
+        address payable _thisAddress = address(uint160(_thisAddressNotPayable)); // <-- this is required to cast address to address payable
         // There wont be a winner in the first iteration
         if (proposalIteration != 0) {
             // Get current patron of Dragon Token
@@ -160,6 +159,10 @@ contract WildcardsQV is Initializable {
             wildCardSteward.withdrawBenefactorFundsTo(_thisAddress);
             // Get balance to distrubute
             uint256 _fundsToDistribute = _thisAddress.balance;
+            // Send 1% to message caller as incentive
+            msg.sender.transfer(_fundsToDistribute.div(100));
+            // Get remaining balance 
+            _fundsToDistribute = _thisAddress.balance;
             // Send funds to winner
             address payable _addressOfWinner = proposalAddresses[currentWinner];
             _addressOfWinner.transfer(_fundsToDistribute);
