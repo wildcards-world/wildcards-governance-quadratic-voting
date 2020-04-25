@@ -34,6 +34,9 @@ contract WildcardsQV is Initializable {
     // mapping(uint256 => uint256) public topProject;
     // mapping(address => address) public voteDelegations;
     address burnAddress = 0x000000000000000000000000000000000000dEaD;
+    uint currentHighestVoteCount;
+    uint currentWinner;
+    uint totalVotes;
 
     ////////////////////////////////////
     //////// Modifiers /////////////////
@@ -84,24 +87,33 @@ contract WildcardsQV is Initializable {
     ///////////////////////////////////
     /////// vote function  ///////////
     ///////////////////////////////////
-    function vote(uint256 proposalIdToVoteFor, uint256 amount) external {
+    function vote(uint256 proposalIdToVoteFor, uint256 amount, uint256 sqrt) external {
         // Check they are a wildcards user
         require(wildCardToken.balanceOf(msg.sender)>0, "Does not own a WildCard");
-        // Check they have wildcards loyalty Tokens:
-        //    not necessary? the send will fail if they dont
+        // Check they have at least 1 wildcards loyalty token:
+        require(amount >= 10**18, " Minimum vote one token");
         // Check they are voting for a valid proposal: 
         // require(proposalDetails[proposalIdToVoteFor]!=0, "Proposal does not exist"); // <-- doesnt work, not sure how to do this atm
         // Check that they haven't yet voted for the proposal in this iteration
         require(!hasUserVotedForProposalIteration[proposalIteration][msg.sender][proposalIdToVoteFor], "Already voted on this proposal");
         // Approve us to send wildcards tokens on their behalf
-        //    needs to be done front end I think
+        //    needs to be done front end I think, calling the Loyaly Token contract directly
         // Send their wildcards tokens to the burn address
         require(loyaltyToken.transferFrom(msg.sender,burnAddress,amount), "Loyalty Token transfer failed");
+        // Validate the square root
+        require(sqrt.mul(sqrt) == amount, "Square root incorrect");
         // Add the tokens to the total tally
         proposalVotes[proposalIteration][proposalIdToVoteFor] = proposalVotes[proposalIteration][proposalIdToVoteFor]
-            .add(sqrt(amount));
+            .add(sqrt);
+        uint256 _currentVoteCount = proposalVotes[proposalIteration][proposalIdToVoteFor];
         // Take note that the user has voted on this proposal so they can't do it again
         hasUserVotedForProposalIteration[proposalIteration][msg.sender][proposalIdToVoteFor] = true;
+        // Update currentWinner, currentHighestVoteCount, totalVotes
+        if (_currentVoteCount > currentHighestVoteCount) {
+            currentHighestVoteCount = _currentVoteCount;
+            currentWinner = proposalIdToVoteFor;
+        }
+        totalVotes = totalVotes.add(_currentVoteCount);
     }
 
     ///////////////////////////////////
@@ -114,25 +126,28 @@ contract WildcardsQV is Initializable {
         if (proposalIteration != 0) {
             // Here we send the money to the winner/winners!
             // Need to call a function that calculates the winners.
+            //    no longer necessary
+            uint256 _totalFundsToDistribute = address(this).balance;
+
+            // Sends funds proportionally, can change if needed
+            // Assumes this contract has the ether, that it is not taken from elsewhere
+            for (uint i = 0; i < proposalId; i++) {
+                address payable _addressOfCharity; // <=-- placeholder, I dont know where to get this from
+                uint256 _voteCount = proposalVotes[proposalIteration][i];
+                uint256 _fundsToDistribute = _totalFundsToDistribute.mul(_voteCount).div(totalVotes);
+                _addressOfCharity.transfer(_fundsToDistribute);
+            }
+
             // We need to be able to call the wildcards contract to distribute the collected hackathon
             // To the winners in the ratio determined by the QV
             // Also do the logic of removing proposals / putting them in different leagues, states, etc...
         }
         proposalDeadline = now.add(votingInterval);
         proposalIteration = proposalIteration.add(1);
+
+        // Clean up for next iteration
+        currentHighestVoteCount = 0;
+        totalVotes = 0;
     }
 
-    /**
-     * @dev returns the square root (in int) of a number
-     * @param x the number (int)
-     */
-    // NB check the integrity of this function
-    function sqrt(uint256 x) internal pure returns (uint256 y) {
-        uint256 z = (x + 1) / 2;
-        y = x;
-        while (z < y) {
-            y = z;
-            z = (x / z + z) / 2;
-        }
-    }
 }
