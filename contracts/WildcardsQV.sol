@@ -1,15 +1,19 @@
 pragma solidity 0.5.15;
 
-// import "./interfaces/IERC20.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
 import "@nomiclabs/buidler/console.sol";
-
+import "./interfaces/ILoyaltyToken.sol";
+import "./interfaces/IWildCardToken.sol";
 
 contract WildcardsQV is Initializable {
     using SafeMath for uint256;
 
     //////// MASTER //////////////
     address public admin;
+
+    //////// External contract specific //////////
+    ILoyaltyToken public loyaltyToken;
+    IWildCardToken public wildCardToken;
 
     //////// Iteration specific //////////
     uint256 public votingInterval;
@@ -24,11 +28,12 @@ contract WildcardsQV is Initializable {
 
     //////// DAO / VOTE specific //////////
     // TODO: - we can replace `hasUserVotedForProposalIniteration` value with `userProposalVotes` in the future and allow user to vote multiple times
-    mapping(uint256 => mapping(address => mapping(uint256 => bool))) public hasUserVotedForProposalIteration; /// iteration -> userAddress -> proposalId -> num votes
+    mapping(uint256 => mapping(address => mapping(uint256 => bool))) public hasUserVotedForProposalIteration; /// iteration -> userAddress -> proposalId -> bool
     // mapping(uint256 => mapping(address => mapping(uint256 => uint256))) public userProposalVotes; /// iteration -> userAddress -> proposalId -> num tokens burnt on project (non - quadratic vote)
     mapping(uint256 => mapping(uint256 => uint256)) public proposalVotes; /// iteration -> proposalId -> num votes
     // mapping(uint256 => uint256) public topProject;
     // mapping(address => address) public voteDelegations;
+    address burnAddress = 0x000000000000000000000000000000000000dEaD;
 
     ////////////////////////////////////
     //////// Modifiers /////////////////
@@ -41,11 +46,14 @@ contract WildcardsQV is Initializable {
     ////////////////////////////////////
     //////// SETUP CONTRACT////////////
     //// NOTE: Upgradable at the moment
-    function initialize(uint256 _votingInterval) public initializer {
+    function initialize(uint256 _votingInterval, ILoyaltyToken _addressOfLoyalyTokenContract, IWildCardToken _addressOfWildCardTokenContract) public initializer {
         admin = msg.sender;
         votingInterval = _votingInterval;
 
         proposalDeadline = now.add(_votingInterval);
+
+        loyaltyToken = _addressOfLoyalyTokenContract;
+        wildCardToken = _addressOfWildCardTokenContract;
     }
 
     ///////////////////////////////////
@@ -78,15 +86,22 @@ contract WildcardsQV is Initializable {
     ///////////////////////////////////
     function vote(uint256 proposalIdToVoteFor, uint256 amount) external {
         // Check they are a wildcards user
-        // Check they have wildcards loyalty Tokens
-        // Check they are voting for a valid proposal + the they haven't yet voted for the proposal in this iteration
-
+        require(wildCardToken.balanceOf(msg.sender)>0, "Does not own a WildCard");
+        // Check they have wildcards loyalty Tokens:
+        //    not necessary? the send will fail if they dont
+        // Check they are voting for a valid proposal: 
+        // require(proposalDetails[proposalIdToVoteFor]!=0, "Proposal does not exist"); // <-- doesnt work, not sure how to do this atm
+        // Check that they haven't yet voted for the proposal in this iteration
+        require(!hasUserVotedForProposalIteration[proposalIteration][msg.sender][proposalIdToVoteFor], "Already voted on this proposal");
         // Approve us to send wildcards tokens on their behalf
+        //    needs to be done front end I think
         // Send their wildcards tokens to the burn address
-
+        require(loyaltyToken.transferFrom(msg.sender,burnAddress,amount), "Loyalty Token transfer failed");
         // Add the tokens to the total tally
         proposalVotes[proposalIteration][proposalIdToVoteFor] = proposalVotes[proposalIteration][proposalIdToVoteFor]
             .add(sqrt(amount));
+        // Take note that the user has voted on this proposal so they can't do it again
+        hasUserVotedForProposalIteration[proposalIteration][msg.sender][proposalIdToVoteFor] = true;
     }
 
     ///////////////////////////////////
