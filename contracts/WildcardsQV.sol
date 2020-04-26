@@ -79,7 +79,10 @@ contract WildcardsQV is Initializable {
     ////////////////////////////////////
     //////// SETUP CONTRACT////////////
     //// NOTE: Upgradable at the moment
-    function initialize(
+    // Changed from initialise to constructor 
+    // because I couldnt figure out how to get tests
+    // to work otherwise, needs to be changed back
+    constructor( 
         uint256 _votingInterval,
         ILoyaltyToken _addressOfLoyalyTokenContract,
         IWildCardToken _addressOfWildCardTokenContract,
@@ -136,7 +139,7 @@ contract WildcardsQV is Initializable {
         emit LogProposalCreated(proposalId, _addressOfCharity);
         // So the first proposal will have an ID of 0
         proposalId = proposalId.add(1);
-        return proposalId;
+        return proposalId.sub(1); // <- so it is returning the ID of the created proposal
     }
 
     ///////////////////////////////////
@@ -151,7 +154,8 @@ contract WildcardsQV is Initializable {
             "Does not own a WildCard"
         );
         // Check they have at least 1 wildcards loyalty token:
-        require(amount >= 10**18, " Minimum vote one token");
+
+        require(amount >= 10**18, "Minimum vote one token");
         // Check they are voting for a valid proposal:
         require(
             state[proposalIdToVoteFor] == ProposalState.Active,
