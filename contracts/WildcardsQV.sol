@@ -36,9 +36,9 @@ contract WildcardsQV is Initializable {
     mapping(uint256 => mapping(uint256 => uint256)) public proposalVotes; /// iteration -> proposalId -> num votes
     mapping(uint256 => uint256) public topProject;
     address burnAddress = 0x000000000000000000000000000000000000dEaD;
-    uint256 currentHighestVoteCount;
-    uint256 currentWinner;
-    uint256 totalVotes;
+    uint256 public currentHighestVoteCount;
+    uint256 public currentWinner;
+    uint256 public totalVotes;
 
     ////////////////////////////////////
     //////// Events ///////////////////
@@ -181,7 +181,6 @@ contract WildcardsQV is Initializable {
         // Add the tokens to the total tally
         proposalVotes[proposalIteration][proposalIdToVoteFor] = proposalVotes[proposalIteration][proposalIdToVoteFor]
             .add(sqrt);
-
 
             uint256 _currentVoteCount
          = proposalVotes[proposalIteration][proposalIdToVoteFor];

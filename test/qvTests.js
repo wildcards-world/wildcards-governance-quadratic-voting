@@ -71,7 +71,7 @@ describe("WV Contract", function() {
     assert.equal(proposalAddress,addressOfProposal2);
   });
 
-  it("Check vote", async function() {
+  it("Check vote- expected failures", async function() {
     // SETUP
     const wctokenmockup = await WildCardTokenMockup.new();
     const ltokenmockup = await LoyaltyTokenMockup.new();
@@ -84,7 +84,7 @@ describe("WV Contract", function() {
     await wctokenmockup.createToken(accounts[0]);
     await shouldFail.reverting.withMessage(qvcontract.vote(0,0,0), "Minimum vote one token");
     // send sufficient amount, check expected failure if voting on inactive proposal
-    var amount = new BN('1000000000000000000');
+    var amount = new BN('4000000000000000000');
     await shouldFail.reverting.withMessage(qvcontract.vote(0,amount,0), "Proposal not Active");
     // create proposal, check expected failure if do not have sufficient balance
     var addressOfProposal1 = "0x0000000000000000000000000000000000000000";
@@ -93,10 +93,97 @@ describe("WV Contract", function() {
     // mint sufficient loyalty tokens, supply incorrect root
     await ltokenmockup.mintLoyaltyTokens(accounts[0], amount);
     await shouldFail.reverting.withMessage(qvcontract.vote(0,amount,0), "Square root incorrect");
-
-
-
+    // pass correct root, should be no failures
+    var root = new BN('2000000000');
+    await qvcontract.vote(0,amount,root);
   });
+
+  it("Check vote", async function() {
+    // SETUP CONTRACTS
+    const wctokenmockup = await WildCardTokenMockup.new();
+    const ltokenmockup = await LoyaltyTokenMockup.new();
+    const stewardmockup = await StewardMockup.new();
+    const qvcontract = await WildcardsQV.new(_votingInterval, ltokenmockup.address, wctokenmockup.address, stewardmockup.address, _dragonCardId);
+    // SETUP THE REST (same as previous test)
+    var amount = new BN('9000000000000000000');
+    var root = new BN('3000000000');
+    var addressOfProposal = "0x0000000000000000000000000000000000000000";
+    await wctokenmockup.createToken(accounts[0]);
+    await qvcontract.createProposal(addressOfProposal);
+    await ltokenmockup.mintLoyaltyTokens(accounts[0], amount);
+    await qvcontract.vote(0,amount,root);
+    // TESTS
+    // check vote counted
+    var votes = await qvcontract.proposalVotes.call(0,0);
+    assert.equal(votes.toNumber(),root.toNumber());
+    // check currentWinner, currentHighestVoteCount, totalVotes
+    var currentWinner = await qvcontract.currentWinner.call();
+    assert.equal(currentWinner,0);
+    var totalVotes = await qvcontract.totalVotes.call();
+    assert.equal(totalVotes.toNumber(),root.toNumber());
+    var currentHighestVoteCount = await qvcontract.currentHighestVoteCount.call();
+    assert.equal(currentHighestVoteCount.toNumber(),root.toNumber());
+    // check that I am marked as voted
+    var hasVoted = await qvcontract.hasUserVotedForProposalIteration.call(0,accounts[0],0);
+    assert.equal(hasVoted,true);
+    // check expected failure if I try and vote again
+    await ltokenmockup.mintLoyaltyTokens(accounts[0], amount);
+    await shouldFail.reverting.withMessage(qvcontract.vote(0,amount,root), "Already voted on this proposal");
+    // vote on different proposal, vote for less than original proposal, check currentWinner, currentHighestVoteCount, totalVotes
+    await qvcontract.createProposal(addressOfProposal);
+    var amount2 = new BN('4000000000000000000'); // less than last night
+    var root2 = new BN('2000000000');
+    await ltokenmockup.mintLoyaltyTokens(accounts[0], amount2);
+    await qvcontract.vote(1,amount2,root2);
+    var currentWinner = await qvcontract.currentWinner.call();
+    assert.equal(currentWinner,0);
+    var totalVotes = await qvcontract.totalVotes.call();
+    var totalVotesShouldBe = new BN('5000000000'); // sqrt(4) + sqrt(9)
+    assert.equal(totalVotes.toNumber(),totalVotesShouldBe.toNumber());
+    var currentHighestVoteCount = await qvcontract.currentHighestVoteCount.call();
+    assert.equal(currentHighestVoteCount.toNumber(),root.toNumber());
+    // change user, vote on second proposal such that it is now the winner, check currentWinner, currentHighestVoteCount, totalVotes
+    var user2 = accounts[1];
+    await wctokenmockup.createToken(user2);
+    await ltokenmockup.mintLoyaltyTokens(user2, amount);
+    await qvcontract.vote(1,amount,root, { from: user2 });
+    var currentWinner = await qvcontract.currentWinner.call();
+    assert.equal(currentWinner,1);
+    var totalVotes = await qvcontract.totalVotes.call();
+    var totalVotesShouldBe = new BN('8000000000'); // sqrt(4) + sqrt(9) + sqrt(9)
+    assert.equal(totalVotes.toNumber(),totalVotesShouldBe.toNumber());
+    var currentHighestVoteCount = await qvcontract.currentHighestVoteCount.call();
+    var currentHighestVoteCountShouldBe = new BN('5000000000');  // sqrt(4) + sqrt(9)
+    assert.equal(currentHighestVoteCount.toNumber(),currentHighestVoteCountShouldBe.toNumber());
+  });
+
+  // it("Check distributeFunds", async function() {
+  //   // SETUP CONTRACTS
+  //   const wctokenmockup = await WildCardTokenMockup.new();
+  //   const ltokenmockup = await LoyaltyTokenMockup.new();
+  //   const stewardmockup = await StewardMockup.new();
+  //   const qvcontract = await WildcardsQV.new(_votingInterval, ltokenmockup.address, wctokenmockup.address, stewardmockup.address, _dragonCardId);
+  //   // SETUP THE REST
+  //   // proposal 0 = 2 votes, proposal 1 = 3 votes
+  //   // vote on proposal 0:
+  //   var user = accounts[0];
+  //   var amount = new BN('4000000000000000000');
+  //   var root = new BN('2000000000');
+  //   var addressOfProposal = "0x0000000000000000000000000000000000000000";
+  //   await wctokenmockup.createToken(user);
+  //   await qvcontract.createProposal(addressOfProposal);
+  //   await ltokenmockup.mintLoyaltyTokens(user, amount);
+  //   await qvcontract.vote(0,amount,root);
+  //   // vote on proposal 1:
+  //   var user = accounts[1];
+  //   var amount = new BN('9000000000000000000');
+  //   var root = new BN('3000000000');
+  //   var addressOfProposal = "0x0000000000000000000000000000000000000000";
+  //   await wctokenmockup.createToken(user);
+  //   await qvcontract.createProposal(addressOfProposal);
+  //   await ltokenmockup.mintLoyaltyTokens(user, amount);
+  //   await qvcontract.vote(1,amount,root);
+  // });
 
 });
 
