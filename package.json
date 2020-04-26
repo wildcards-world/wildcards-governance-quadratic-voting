@@ -13,13 +13,14 @@
   "dependencies": {
     "@openzeppelin/contracts-ethereum-package": "^2.2.3",
     "@openzeppelin/upgrades": "^2.5.3",
+    "@truffle/hdwallet-provider": "^1.0.34",
     "truffle-hdwallet-provider": "^1.0.17"
   },
   "devDependencies": {
     "@nomiclabs/buidler": "^1.2.0",
     "@nomiclabs/buidler-truffle5": "^1.2.0",
     "@nomiclabs/buidler-web3": "^1.2.0",
-    "@openzeppelin/cli": "^2.8.0",
+    "@openzeppelin/cli": "^2.8.2",
     "@openzeppelin/test-helpers": "^0.5.1",
     "chai": "^4.2.0",
     "eth-gas-reporter": "^0.2.12",
