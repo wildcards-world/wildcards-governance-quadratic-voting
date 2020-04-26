@@ -12,7 +12,7 @@ contract LoyaltyTokenMockup {
         balances[_owner] = balances[_owner].add(_amount);
     }
 
-    function balanceOf(address _owner) public returns (uint256) {
+    function balanceOf(address _owner) public view returns (uint256) {
         return balances[_owner];
     }
 

@@ -182,7 +182,14 @@ describe("WV Contract", function() {
   //   await wctokenmockup.createToken(user);
   //   await qvcontract.createProposal(addressOfProposal);
   //   await ltokenmockup.mintLoyaltyTokens(user, amount);
-  //   await qvcontract.vote(1,amount,root);
+  //   await qvcontract.vote(1,amount,root,{from: user});
+  //   // THE TESTS
+  //   // // check expected failure because not enough time has passed
+  //   // await shouldFail.reverting.withMessage(qvcontract.distributeFunds(), "Iteration interval not ended");
+  //   // // advance time, no failure
+  //   // await time.increase(time.duration.hours(1));
+  //   // await qvcontract.distributeFunds();
+
   // });
 
 });

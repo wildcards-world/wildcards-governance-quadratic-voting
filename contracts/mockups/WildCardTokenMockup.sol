@@ -10,7 +10,7 @@ contract WildCardTokenMockup {
         balances[_owner] = balances[_owner] + 1;
     }
 
-    function balanceOf(address _owner) public returns (uint256) {
+    function balanceOf(address _owner) public view returns (uint256) {
         return balances[_owner];
     }
 

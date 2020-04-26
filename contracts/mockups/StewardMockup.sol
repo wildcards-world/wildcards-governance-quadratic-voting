@@ -8,6 +8,8 @@ contract StewardMockup {
 
     mapping (address => uint256) balances;
 
+    // function _collectPatronagePatron(address tokenPatron) external;
+
 
 
 }

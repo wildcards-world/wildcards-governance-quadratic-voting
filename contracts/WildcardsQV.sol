@@ -206,7 +206,7 @@ contract WildcardsQV is Initializable {
     //// Iteration changes/////////////
     ///////////////////////////////////
     function distributeFunds() public {
-        require(proposalDeadline < now, "iteration interval not ended");
+        require(proposalDeadline < now, "Iteration interval not ended");
         address _thisAddressNotPayable = address(this);
         address payable _thisAddress = address(uint160(_thisAddressNotPayable)); // <-- this is required to cast address to address payable
 
