@@ -224,6 +224,7 @@ contract WildcardsQV is Initializable {
         _fundsToDistribute = _thisAddress.balance;
         // Send funds to winner
         address payable _addressOfWinner = proposalAddresses[currentWinner];
+        console.log(proposalAddresses[currentWinner]);
         _addressOfWinner.transfer(_fundsToDistribute);
 
         emit LogFundsDistributed(

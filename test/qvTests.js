@@ -161,7 +161,7 @@ describe("WV Contract", function() {
     // SETUP CONTRACTS
     const wctokenmockup = await WildCardTokenMockup.new();
     const ltokenmockup = await LoyaltyTokenMockup.new();
-    const stewardmockup = await StewardMockup.new({ value: 1000000000000000000});
+    const stewardmockup = await StewardMockup.new();
     const qvcontract = await WildcardsQV.new(_votingInterval, ltokenmockup.address, wctokenmockup.address, stewardmockup.address, _dragonCardId);
     // SETUP THE REST
     // proposal 0 = 2 votes, proposal 1 = 3 votes
@@ -184,6 +184,8 @@ describe("WV Contract", function() {
     await ltokenmockup.mintLoyaltyTokens(user, amount);
     await qvcontract.vote(1,amount,root,{from: user});
     // THE TESTS
+    // top up steward so it can send us back the funds
+    await stewardmockup.topUpSteward({ value: 1000000000000000000});
     // check expected failure because not enough time has passed
     await shouldFail.reverting.withMessage(qvcontract.distributeFunds(), "Iteration interval not ended");
     // advance time, no failure
@@ -194,8 +196,40 @@ describe("WV Contract", function() {
     assert.equal(balance,990000000000000000);
     // check expected failure if try and distributeFunds again
     await shouldFail.reverting.withMessage(qvcontract.distributeFunds(), "Iteration interval not ended");
-    // try again with new
-
+    ////////////////////////// round 2 //////////////////////
+    // try again with new proposals
+    // proposal 0 = 3 more votes (total 5) create a third proposal and give it 3 votes. Proposal 0 now the winner
+    // vote on proposal 0:
+    var user = accounts[0];
+    var amount = new BN('9000000000000000000');
+    var root = new BN('3000000000');
+    await ltokenmockup.mintLoyaltyTokens(user, amount);
+    await qvcontract.vote(0,amount,root);
+    // create and vote on proposal 2:
+    var user = accounts[1];
+    var amount = new BN('9000000000000000000');
+    var root = new BN('3000000000');
+    var addressOfProposal3 = "0x0000000000000000000000000000000000000003";
+    await wctokenmockup.createToken(user);
+    await qvcontract.createProposal(addressOfProposal3);
+    await ltokenmockup.mintLoyaltyTokens(user, amount);
+    await qvcontract.vote(2,amount,root,{from: user});
+    // THE TESTS
+    // top up steward so it can send us back the funds
+    await stewardmockup.topUpSteward({ value: 5000000000000000000});
+    // check expected failure because not enough time has passed
+    await shouldFail.reverting.withMessage(qvcontract.distributeFunds(), "Iteration interval not ended");
+    // advance time, no failure
+    await time.increase(time.duration.hours(1));
+    await qvcontract.distributeFunds(); /// <----- why is this causing a problem
+    // check that the winner was sent the ether
+    // var balance = await web3.eth.getBalance(addressOfProposal1);
+    // assert.equal(balance,990000000000000000);
+    // var balance = await web3.eth.getBalance(addressOfProposal2)
+    // assert.equal(balance,990000000000000000);
+    // var balance = await web3.eth.getBalance(addressOfProposal2)
+    // assert.equal(balance,990000000000000000);
+    
 
   });
 
