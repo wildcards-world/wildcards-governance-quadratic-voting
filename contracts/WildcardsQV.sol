@@ -217,14 +217,13 @@ contract WildcardsQV is Initializable {
         // Transfer patronage to this contract
         wildCardSteward.withdrawBenefactorFundsTo(_thisAddress);
         // Get balance to distrubute
-        uint256 _fundsToDistribute = _thisAddress.balance;
+        uint256 _fundsToDistribute = _thisAddressNotPayable.balance;
         // Send 1% to message caller as incentive
         msg.sender.transfer(_fundsToDistribute.div(100));
         // Get remaining balance
-        _fundsToDistribute = _thisAddress.balance;
+        _fundsToDistribute = _thisAddressNotPayable.balance;
         // Send funds to winner
         address payable _addressOfWinner = proposalAddresses[currentWinner];
-        console.log(proposalAddresses[currentWinner]);
         _addressOfWinner.transfer(_fundsToDistribute);
 
         emit LogFundsDistributed(

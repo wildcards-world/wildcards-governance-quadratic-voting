@@ -169,7 +169,7 @@ describe("WV Contract", function() {
     var user = accounts[0];
     var amount = new BN('4000000000000000000');
     var root = new BN('2000000000');
-    var addressOfProposal1 = "0x0000000000000000000000000000000000000001";
+    var addressOfProposal1 = "0x0000000000000000000000000000000000000069";
     await wctokenmockup.createToken(user);
     await qvcontract.createProposal(addressOfProposal1);
     await ltokenmockup.mintLoyaltyTokens(user, amount);
@@ -223,14 +223,8 @@ describe("WV Contract", function() {
     await time.increase(time.duration.hours(1));
     await qvcontract.distributeFunds(); /// <----- why is this causing a problem
     // check that the winner was sent the ether
-    // var balance = await web3.eth.getBalance(addressOfProposal1);
-    // assert.equal(balance,990000000000000000);
-    // var balance = await web3.eth.getBalance(addressOfProposal2)
-    // assert.equal(balance,990000000000000000);
-    // var balance = await web3.eth.getBalance(addressOfProposal2)
-    // assert.equal(balance,990000000000000000);
-    
-
+    var balance = await web3.eth.getBalance(addressOfProposal1);
+    assert.equal(balance,4950000000000000000);
   });
 
 });

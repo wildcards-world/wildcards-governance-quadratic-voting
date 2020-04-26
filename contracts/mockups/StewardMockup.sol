@@ -15,7 +15,7 @@ contract StewardMockup {
     function _collectPatronagePatron(address tokenPatron) public {
         //this doesnt need to do anything
         // remove compiler warnings:
-        // compilerSuppressionVariable2 = tokenPatron;
+        compilerSuppressionVariable2 = tokenPatron;
     }
 
     function withdrawBenefactorFundsTo(address payable benefactor) public {
@@ -25,7 +25,7 @@ contract StewardMockup {
     }
 
     function currentPatron(uint tokenId) public returns (address) {
-        // compilerSuppressionVariable = tokenId;
+        compilerSuppressionVariable = tokenId;
         return address(1);
     }
 
