@@ -59,7 +59,7 @@ contract WildcardsQV is Initializable {
         uint256 totalVotesAllProposals,
         address indexed addressOfVoter
     );
-    event LogFundsDistrubuted(
+    event LogFundsDistributed(
         uint256 indexed fundsDistributed,
         uint256 indexed totalVotes,
         uint256 winningVotes,
@@ -226,7 +226,7 @@ contract WildcardsQV is Initializable {
         address payable _addressOfWinner = proposalAddresses[currentWinner];
         _addressOfWinner.transfer(_fundsToDistribute);
 
-        emit LogFundsDistrubuted(
+        emit LogFundsDistributed(
             _fundsToDistribute,
             totalVotes,
             currentHighestVoteCount,
@@ -241,4 +241,9 @@ contract WildcardsQV is Initializable {
         proposalDeadline = now.add(votingInterval);
         proposalIteration = proposalIteration.add(1);
     }
+
+    ///////////////////////////////////
+    /////////// Fallback /////////////
+    ///////////////////////////////////
+    function () external payable {}
 }

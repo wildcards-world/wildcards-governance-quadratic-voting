@@ -7,8 +7,26 @@ contract StewardMockup {
     using SafeMath for uint256;
 
     mapping (address => uint256) balances;
+    uint compilerSuppressionVariable;
 
-    // function _collectPatronagePatron(address tokenPatron) external;
+    constructor() payable public {}
+
+    function _collectPatronagePatron(address tokenPatron) public {
+        //this doesnt need to do anything
+        compilerSuppressionVariable = 69;
+    }
+
+    function withdrawBenefactorFundsTo(address payable benefactor) public {
+        
+        uint256 _fundsToDistribute = address(this).balance;
+        benefactor.transfer(_fundsToDistribute);
+
+    }
+
+    function currentPatron(uint tokenId) public returns (address) {
+        compilerSuppressionVariable = 69;
+        return address(1);
+    }
 
 
 
