@@ -4,3 +4,7 @@ artifacts
 
 # other
 node_modules
+.openzeppelin/.session
+
+build
+secretsManager.js
