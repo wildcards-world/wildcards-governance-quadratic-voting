@@ -8,25 +8,19 @@ contract StewardMockup {
 
     mapping (address => uint256) balances;
     uint compilerSuppressionVariable;
-    address compilerSuppressionVariable2;
 
     constructor() payable public {}
 
-    function _collectPatronagePatron(address tokenPatron) public {
+    function _collectPatronage(uint id) public {
         //this doesnt need to do anything
         // remove compiler warnings:
-        compilerSuppressionVariable2 = tokenPatron;
+        compilerSuppressionVariable = id;
     }
 
     function withdrawBenefactorFundsTo(address payable benefactor) public {
         uint256 _fundsToDistribute = address(this).balance;
         benefactor.transfer(_fundsToDistribute);
 
-    }
-
-    function currentPatron(uint tokenId) public returns (address) {
-        compilerSuppressionVariable = tokenId;
-        return address(1);
     }
 
     function topUpSteward() public payable {}

@@ -210,10 +210,8 @@ contract WildcardsQV is Initializable {
         address _thisAddressNotPayable = address(this);
         address payable _thisAddress = address(uint160(_thisAddressNotPayable)); // <-- this is required to cast address to address payable
 
-        // Get current patron of Dragon Token
-        address _currentPatron = wildCardSteward.currentPatron(dragonCardId);
         // Collect patronage on the WildCard
-        wildCardSteward._collectPatronagePatron(_currentPatron);
+        wildCardSteward._collectPatronage(dragonCardId);
         // Transfer patronage to this contract
         wildCardSteward.withdrawBenefactorFundsTo(_thisAddress);
         // Get balance to distrubute
