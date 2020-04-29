@@ -79,10 +79,10 @@ contract WildcardsQV is Initializable {
     ////////////////////////////////////
     //////// SETUP CONTRACT////////////
     //// NOTE: Upgradable at the moment
-    // Changed from initialise to constructor 
+    // Changed from initialise to constructor
     // because I couldnt figure out how to get tests
     // to work otherwise, needs to be changed back
-    constructor( 
+    function initialize(
         uint256 _votingInterval,
         ILoyaltyToken _addressOfLoyalyTokenContract,
         IWildCardToken _addressOfWildCardTokenContract,
@@ -161,6 +161,7 @@ contract WildcardsQV is Initializable {
             state[proposalIdToVoteFor] == ProposalState.Active,
             "Proposal not Active"
         );
+
         // Check that they haven't yet voted for the proposal in this iteration
         require(
             !hasUserVotedForProposalIteration[proposalIteration][msg
@@ -181,6 +182,7 @@ contract WildcardsQV is Initializable {
         // Add the tokens to the total tally
         proposalVotes[proposalIteration][proposalIdToVoteFor] = proposalVotes[proposalIteration][proposalIdToVoteFor]
             .add(sqrt);
+
 
             uint256 _currentVoteCount
          = proposalVotes[proposalIteration][proposalIdToVoteFor];
@@ -243,5 +245,5 @@ contract WildcardsQV is Initializable {
     ///////////////////////////////////
     /////////// Fallback /////////////
     ///////////////////////////////////
-    function () external payable {}
+    function() external payable {}
 }

@@ -4,3 +4,4 @@ artifacts
 
 # other
 node_modules
+secretsManager.js
