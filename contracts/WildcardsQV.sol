@@ -204,19 +204,20 @@ contract WildcardsQV is Initializable {
     ///////////////////////////////////
     function distributeFunds() public {
         require(proposalDeadline < now, "Iteration interval not ended");
-        address _thisAddressNotPayable = address(this);
-        address payable _thisAddress = address(uint160(_thisAddressNotPayable)); // <-- this is required to cast address to address payable
+        address payable _thisAddress = address(this); // <-- this is required to cast address to address payable
+        // address _thisAddress = address(this);
+        // address payable _thisAddress = address(uint160(_thisAddress)); // <-- this is required to cast address to address payable
 
         // Collect patronage on the WildCard
         wildCardSteward._collectPatronage(dragonCardId);
         // Transfer patronage to this contract
         wildCardSteward.withdrawBenefactorFundsTo(_thisAddress);
         // Get balance to distrubute
-        uint256 _fundsToDistribute = _thisAddressNotPayable.balance;
+        uint256 _fundsToDistribute = _thisAddress.balance;
         // Send 1% to message caller as incentive
         msg.sender.transfer(_fundsToDistribute.div(100));
         // Get remaining balance
-        _fundsToDistribute = _thisAddressNotPayable.balance;
+        _fundsToDistribute = _thisAddress.balance;
         // Send funds to winner
         address payable _addressOfWinner = proposalAddresses[currentWinner];
         _addressOfWinner.transfer(_fundsToDistribute);
