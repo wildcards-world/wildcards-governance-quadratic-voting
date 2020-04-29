@@ -114,10 +114,11 @@ describe("WV Contract", function() {
       "Does not own a WildCard"
     );
     // buy a WC token, check expected failure if amount too low
+    var tooLittleAmount = new BN("100000000000000");
     await wctokenmockup.createToken(accounts[0]);
     await shouldFail.reverting.withMessage(
-      qvcontract.vote(0, 0, 0),
-      "Minimum vote one token"
+      qvcontract.vote(0, tooLittleAmount, 0),
+      "Minimum vote 0.001 loyalty tokens"
     );
     // send sufficient amount, check expected failure if voting on inactive proposal
     var amount = new BN("4000000000000000000");
