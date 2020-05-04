@@ -1,4 +1,3 @@
-const Greeter = artifacts.require("Greeter");
 const WildcardsQV = artifacts.require("WildcardsQV");
 const WildCardTokenMockup = artifacts.require("WildCardTokenMockup");
 const LoyaltyTokenMockup = artifacts.require("LoyaltyTokenMockup");
@@ -16,18 +15,14 @@ const {
 // Vanilla Mocha test. Increased compatibility with tools that integrate Mocha.
 describe("WV Contract", function() {
   let accounts;
-  let _votingInterval = 3600;
-  let _dragonCardId = 69;
-  // let qvcontract;
-  // let wctokenmockup;
-  // let ltokenmockup;
-  // let stewardmockup;
+  const _votingInterval = 3600;
+  const _dragonCardId = 69;
 
   before(async function() {
     accounts = await web3.eth.getAccounts();
   });
 
-  it("Check variables on deploy", async function() {
+  it("Check constiables on deploy", async function() {
     // SETUP
 
     wctokenmockup = await WildCardTokenMockup.new();
@@ -69,28 +64,28 @@ describe("WV Contract", function() {
     // check proposal ID currently zero
     assert.equal(await qvcontract.proposalId.call(), 0);
     // add two proposals
-    var addressOfProposal1 = "0x0000000000000000000000000000000000000000";
-    var addressOfProposal2 = "0x0000000000000000000000000000000000000001";
+    const addressOfProposal1 = "0x0000000000000000000000000000000000000000";
+    const addressOfProposal2 = "0x0000000000000000000000000000000000000001";
     // check the state of proposalID 0 is currently 0 (= DoesNotExist)
-    var proposalState = await qvcontract.state.call(0);
-    assert.equal(proposalState, 0);
+    const proposalState0 = await qvcontract.state.call(0);
+    assert.equal(proposalState0, 0);
     // create 1 proposal
     await qvcontract.createProposal(addressOfProposal1);
     // check state is now 2 ( = Active )
-    var proposalState = await qvcontract.state.call(0);
-    assert.equal(proposalState, 2);
+    const proposalState1 = await qvcontract.state.call(0);
+    assert.equal(proposalState1, 2);
     // check address of proposal
-    var proposalAddress = await qvcontract.proposalAddresses.call(0);
+    const proposalAddress = await qvcontract.proposalAddresses.call(0);
     assert.equal(proposalAddress, addressOfProposal1);
     // check proposalId is now 1
     assert.equal(await qvcontract.proposalId.call(), 1);
     // repeat all the above for second proposal
     await qvcontract.createProposal(addressOfProposal2);
     assert.equal(await qvcontract.proposalId.call(), 2);
-    var proposalState = await qvcontract.state.call(1);
+    const proposalState = await qvcontract.state.call(1);
     assert.equal(proposalState, 2);
-    var proposalAddress = await qvcontract.proposalAddresses.call(1);
-    assert.equal(proposalAddress, addressOfProposal2);
+    const proposalAddress2 = await qvcontract.proposalAddresses.call(1);
+    assert.equal(proposalAddress2, addressOfProposal2);
   });
 
   it("Check vote- expected failures", async function() {
@@ -114,20 +109,20 @@ describe("WV Contract", function() {
       "Does not own a WildCard"
     );
     // buy a WC token, check expected failure if amount too low
-    var tooLittleAmount = new BN("100000000000000");
+    const tooLittleAmount = new BN("100000000000000");
     await wctokenmockup.createToken(accounts[0]);
     await shouldFail.reverting.withMessage(
       qvcontract.vote(0, tooLittleAmount, 0),
       "Minimum vote 0.001 loyalty tokens"
     );
     // send sufficient amount, check expected failure if voting on inactive proposal
-    var amount = new BN("4000000000000000000");
+    const amount = new BN("4000000000000000000");
     await shouldFail.reverting.withMessage(
       qvcontract.vote(0, amount, 0),
       "Proposal not Active"
     );
     // create proposal, check expected failure if do not have sufficient balance
-    var addressOfProposal1 = "0x0000000000000000000000000000000000000000";
+    const addressOfProposal1 = "0x0000000000000000000000000000000000000000";
     await qvcontract.createProposal(addressOfProposal1);
     await shouldFail.reverting.withMessage(
       qvcontract.vote(0, amount, 0),
@@ -140,7 +135,7 @@ describe("WV Contract", function() {
       "Square root incorrect"
     );
     // pass correct root, should be no failures
-    var root = new BN("2000000000");
+    const root = new BN("2000000000");
     await qvcontract.vote(0, amount, root);
   });
 
@@ -159,26 +154,26 @@ describe("WV Contract", function() {
       _dragonCardId
     );
     // SETUP THE REST (same as previous test)
-    var amount = new BN("9000000000000000000");
-    var root = new BN("3000000000");
-    var addressOfProposal = "0x0000000000000000000000000000000000000000";
+    const amount = new BN("9000000000000000000");
+    const root = new BN("3000000000");
+    const addressOfProposal = "0x0000000000000000000000000000000000000000";
     await wctokenmockup.createToken(accounts[0]);
     await qvcontract.createProposal(addressOfProposal);
     await ltokenmockup.mintLoyaltyTokens(accounts[0], amount);
     await qvcontract.vote(0, amount, root);
     // TESTS
     // check vote counted
-    var votes = await qvcontract.proposalVotes.call(0, 0);
+    const votes = await qvcontract.proposalVotes.call(0, 0);
     assert.equal(votes.toNumber(), root.toNumber());
     // check currentWinner, currentHighestVoteCount, totalVotes
-    var currentWinner = await qvcontract.currentWinner.call();
-    assert.equal(currentWinner, 0);
-    var totalVotes = await qvcontract.totalVotes.call();
-    assert.equal(totalVotes.toNumber(), root.toNumber());
-    var currentHighestVoteCount = await qvcontract.currentHighestVoteCount.call();
-    assert.equal(currentHighestVoteCount.toNumber(), root.toNumber());
+    const currentWinner0 = await qvcontract.currentWinner.call();
+    assert.equal(currentWinner0, 0);
+    const totalVotes0 = await qvcontract.totalVotes.call();
+    assert.equal(totalVotes0.toNumber(), root.toNumber());
+    const currentHighestVoteCount0 = await qvcontract.currentHighestVoteCount.call();
+    assert.equal(currentHighestVoteCount0.toNumber(), root.toNumber());
     // check that I am marked as voted
-    var hasVoted = await qvcontract.hasUserVotedForProposalIteration.call(
+    const hasVoted = await qvcontract.hasUserVotedForProposalIteration.call(
       0,
       accounts[0],
       0
@@ -192,31 +187,31 @@ describe("WV Contract", function() {
     );
     // vote on different proposal, vote for less than original proposal, check currentWinner, currentHighestVoteCount, totalVotes
     await qvcontract.createProposal(addressOfProposal);
-    var amount2 = new BN("4000000000000000000"); // less than last night
-    var root2 = new BN("2000000000");
+    const amount2 = new BN("4000000000000000000"); // less than last night
+    const root2 = new BN("2000000000");
     await ltokenmockup.mintLoyaltyTokens(accounts[0], amount2);
     await qvcontract.vote(1, amount2, root2);
-    var currentWinner = await qvcontract.currentWinner.call();
-    assert.equal(currentWinner, 0);
-    var totalVotes = await qvcontract.totalVotes.call();
-    var totalVotesShouldBe = new BN("5000000000"); // sqrt(4) + sqrt(9)
-    assert.equal(totalVotes.toNumber(), totalVotesShouldBe.toNumber());
-    var currentHighestVoteCount = await qvcontract.currentHighestVoteCount.call();
-    assert.equal(currentHighestVoteCount.toNumber(), root.toNumber());
+    const currentWinner1 = await qvcontract.currentWinner.call();
+    assert.equal(currentWinner1, 0);
+    const totalVotes1 = await qvcontract.totalVotes.call();
+    const totalVotesShouldBe1 = new BN("5000000000"); // sqrt(4) + sqrt(9)
+    assert.equal(totalVotes1.toNumber(), totalVotesShouldBe1.toNumber());
+    const currentHighestVoteCount1 = await qvcontract.currentHighestVoteCount.call();
+    assert.equal(currentHighestVoteCount1.toNumber(), root.toNumber());
     // change user, vote on second proposal such that it is now the winner, check currentWinner, currentHighestVoteCount, totalVotes
-    var user2 = accounts[1];
+    const user2 = accounts[1];
     await wctokenmockup.createToken(user2);
     await ltokenmockup.mintLoyaltyTokens(user2, amount);
     await qvcontract.vote(1, amount, root, { from: user2 });
-    var currentWinner = await qvcontract.currentWinner.call();
-    assert.equal(currentWinner, 1);
-    var totalVotes = await qvcontract.totalVotes.call();
-    var totalVotesShouldBe = new BN("8000000000"); // sqrt(4) + sqrt(9) + sqrt(9)
-    assert.equal(totalVotes.toNumber(), totalVotesShouldBe.toNumber());
-    var currentHighestVoteCount = await qvcontract.currentHighestVoteCount.call();
-    var currentHighestVoteCountShouldBe = new BN("5000000000"); // sqrt(4) + sqrt(9)
+    const currentWinner2 = await qvcontract.currentWinner.call();
+    assert.equal(currentWinner2, 1);
+    const totalVotes2 = await qvcontract.totalVotes.call();
+    const totalVotesShouldBe2 = new BN("8000000000"); // sqrt(4) + sqrt(9) + sqrt(9)
+    assert.equal(totalVotes2.toNumber(), totalVotesShouldBe2.toNumber());
+    const currentHighestVoteCount2 = await qvcontract.currentHighestVoteCount.call();
+    const currentHighestVoteCountShouldBe = new BN("5000000000"); // sqrt(4) + sqrt(9)
     assert.equal(
-      currentHighestVoteCount.toNumber(),
+      currentHighestVoteCount2.toNumber(),
       currentHighestVoteCountShouldBe.toNumber()
     );
   });
@@ -238,23 +233,23 @@ describe("WV Contract", function() {
     // SETUP THE REST
     // proposal 0 = 2 votes, proposal 1 = 3 votes
     // vote on proposal 0:
-    var user = accounts[0];
-    var amount = new BN("4000000000000000000");
-    var root = new BN("2000000000");
-    var addressOfProposal1 = "0x0000000000000000000000000000000000000069";
-    await wctokenmockup.createToken(user);
+    const user0 = accounts[0];
+    const amount0 = new BN("4000000000000000000");
+    const root0 = new BN("2000000000");
+    const addressOfProposal1 = "0x0000000000000000000000000000000000000069";
+    await wctokenmockup.createToken(user0);
     await qvcontract.createProposal(addressOfProposal1);
-    await ltokenmockup.mintLoyaltyTokens(user, amount);
-    await qvcontract.vote(0, amount, root);
+    await ltokenmockup.mintLoyaltyTokens(user0, amount0);
+    await qvcontract.vote(0, amount0, root0);
     // vote on proposal 1:
-    var user = accounts[1];
-    var amount = new BN("9000000000000000000");
-    var root = new BN("3000000000");
-    var addressOfProposal2 = "0x0000000000000000000000000000000000000002";
-    await wctokenmockup.createToken(user);
+    const user1 = accounts[1];
+    const amount1 = new BN("9000000000000000000");
+    const root1 = new BN("3000000000");
+    const addressOfProposal2 = "0x0000000000000000000000000000000000000002";
+    await wctokenmockup.createToken(user1);
     await qvcontract.createProposal(addressOfProposal2);
-    await ltokenmockup.mintLoyaltyTokens(user, amount);
-    await qvcontract.vote(1, amount, root, { from: user });
+    await ltokenmockup.mintLoyaltyTokens(user1, amount1);
+    await qvcontract.vote(1, amount1, root1, { from: user1 });
     // THE TESTS
     // top up steward so it can send us back the funds
     await stewardmockup.topUpSteward({ value: 1000000000000000000 });
@@ -267,8 +262,8 @@ describe("WV Contract", function() {
     await time.increase(time.duration.hours(1));
     await qvcontract.distributeFunds();
     // check that the winner was sent the ether
-    var balance = await web3.eth.getBalance(addressOfProposal2);
-    assert.equal(balance, 990000000000000000);
+    const balanceProposal2 = await web3.eth.getBalance(addressOfProposal2);
+    assert.equal(balanceProposal2, 990000000000000000);
     // check expected failure if try and distributeFunds again
     await shouldFail.reverting.withMessage(
       qvcontract.distributeFunds(),
@@ -278,20 +273,18 @@ describe("WV Contract", function() {
     // try again with new proposals
     // proposal 0 = 3 more votes (total 5) create a third proposal and give it 3 votes. Proposal 0 now the winner
     // vote on proposal 0:
-    var user = accounts[0];
-    var amount = new BN("9000000000000000000");
-    var root = new BN("3000000000");
-    await ltokenmockup.mintLoyaltyTokens(user, amount);
-    await qvcontract.vote(0, amount, root);
+    const amount2 = new BN("9000000000000000000");
+    const root2 = new BN("3000000000");
+    await ltokenmockup.mintLoyaltyTokens(user0, amount2);
+    await qvcontract.vote(0, amount2, root2);
     // create and vote on proposal 2:
-    var user = accounts[1];
-    var amount = new BN("9000000000000000000");
-    var root = new BN("3000000000");
-    var addressOfProposal3 = "0x0000000000000000000000000000000000000003";
-    await wctokenmockup.createToken(user);
+    const amount3 = new BN("9000000000000000000");
+    const root3 = new BN("3000000000");
+    const addressOfProposal3 = "0x0000000000000000000000000000000000000003";
+    await wctokenmockup.createToken(user1);
     await qvcontract.createProposal(addressOfProposal3);
-    await ltokenmockup.mintLoyaltyTokens(user, amount);
-    await qvcontract.vote(2, amount, root, { from: user });
+    await ltokenmockup.mintLoyaltyTokens(user1, amount3);
+    await qvcontract.vote(2, amount3, root3, { from: user1 });
     // THE TESTS
     // top up steward so it can send us back the funds
     await stewardmockup.topUpSteward({ value: 5000000000000000000 });
@@ -304,7 +297,7 @@ describe("WV Contract", function() {
     await time.increase(time.duration.hours(1));
     await qvcontract.distributeFunds(); /// <----- why is this causing a problem
     // check that the winner was sent the ether
-    var balance = await web3.eth.getBalance(addressOfProposal1);
-    assert.equal(balance, 4950000000000000000);
+    const balanceProposal1 = await web3.eth.getBalance(addressOfProposal1);
+    assert.equal(balanceProposal1, 4950000000000000000);
   });
 });
