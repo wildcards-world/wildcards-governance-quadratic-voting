@@ -24,7 +24,7 @@ contract WildcardsQV is Initializable {
     uint256 public proposalIteration;
 
     ///////// Proposal specific ///////////
-    uint256 public proposalId;
+    uint256 public latestProposalId;
     uint256 public proposalDeadline; // keeping track of time
     mapping(uint256 => address payable) public proposalAddresses;
     enum ProposalState {DoesNotExist, Withdrawn, Active}
@@ -129,12 +129,27 @@ contract WildcardsQV is Initializable {
         onlyAdmin
         returns (uint256 newProposalId)
     {
-        proposalId = proposalId.add(1);
-        proposalAddresses[proposalId] = _addressOfCharity;
-        state[proposalId] = ProposalState.Active;
-        emit LogProposalCreated(proposalId, _addressOfCharity);
+        latestProposalId = latestProposalId.add(1);
+        proposalAddresses[latestProposalId] = _addressOfCharity;
+        state[latestProposalId] = ProposalState.Active;
+        emit LogProposalCreated(latestProposalId, _addressOfCharity);
 
-        return proposalId; // <- so it is returning the ID of the created proposal
+        return latestProposalId; // <- so it is returning the ID of the created proposal
+    }
+
+    function updateProposalLinkedAddress(
+        uint256 proposalId,
+        address payable newOrganisationAddress
+    ) external {
+        require(
+            newOrganisationAddress != msg.sender,
+            "Cannot change organisations address to itself"
+        );
+        require(
+            msg.sender == proposalAddresses[proposalId],
+            "Not owner of proposal"
+        );
+        proposalAddresses[proposalId] = newOrganisationAddress;
     }
 
     ///////////////////////////////////
@@ -149,8 +164,8 @@ contract WildcardsQV is Initializable {
             "Does not own a WildCard"
         );
         // Check they have at least 1 wildcards loyalty token:
-        require(amount > 0, "Cannot vote with 0");
 
+        require(amount >= 10**15, "Minimum vote 0.001 loyalty tokens");
         // Check they are voting for a valid proposal:
         require(
             state[proposalIdToVoteFor] == ProposalState.Active,
@@ -204,22 +219,9 @@ contract WildcardsQV is Initializable {
     ///////////////////////////////////
     function distributeFunds() public {
         require(proposalDeadline < now, "Iteration interval not ended");
-
-        // This happens if there is no winner.
-        if (currentHighestVoteCount == 0) {
-            proposalDeadline = now.add(votingInterval);
-            proposalIteration = proposalIteration.add(1);
-            emit LogFundsDistributed(
-                0,
-                0,
-                0,
-                0,
-                proposalDeadline,
-                proposalIteration
-            );
-            return;
-        }
         address payable _thisAddress = address(this); // <-- this is required to cast address to address payable
+        // address _thisAddress = address(this);
+        // address payable _thisAddress = address(uint160(_thisAddress)); // <-- this is required to cast address to address payable
 
         // Collect patronage on the WildCard
         wildCardSteward._collectPatronage(dragonCardId);
@@ -235,20 +237,20 @@ contract WildcardsQV is Initializable {
         address payable _addressOfWinner = proposalAddresses[currentWinner];
         _addressOfWinner.transfer(_fundsToDistribute);
 
-        // Clean up for next iteration
-        proposalDeadline = now.add(votingInterval);
-        proposalIteration = proposalIteration.add(1);
         emit LogFundsDistributed(
             _fundsToDistribute,
             totalVotes,
             currentHighestVoteCount,
             currentWinner,
-            proposalDeadline,
-            proposalIteration
+            now.add(votingInterval),
+            proposalIteration.add(1)
         );
-
+        // Clean up for next iteration
         currentHighestVoteCount = 0;
         totalVotes = 0;
+
+        proposalDeadline = now.add(votingInterval);
+        proposalIteration = proposalIteration.add(1);
     }
 
     ///////////////////////////////////
