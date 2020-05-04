@@ -36,9 +36,9 @@ contract WildcardsQV is Initializable {
     mapping(uint256 => mapping(uint256 => uint256)) public proposalVotes; /// iteration -> proposalId -> num votes
     mapping(uint256 => uint256) public topProject;
     address burnAddress = 0x000000000000000000000000000000000000dEaD;
-    uint256 currentHighestVoteCount;
-    uint256 currentWinner;
-    uint256 totalVotes;
+    uint256 public currentHighestVoteCount;
+    uint256 public currentWinner;
+    uint256 public totalVotes;
 
     ////////////////////////////////////
     //////// Events ///////////////////
@@ -59,7 +59,7 @@ contract WildcardsQV is Initializable {
         uint256 totalVotesAllProposals,
         address indexed addressOfVoter
     );
-    event LogFundsDistrubuted(
+    event LogFundsDistributed(
         uint256 indexed fundsDistributed,
         uint256 indexed totalVotes,
         uint256 winningVotes,
@@ -129,14 +129,12 @@ contract WildcardsQV is Initializable {
         onlyAdmin
         returns (uint256 newProposalId)
     {
+        proposalId = proposalId.add(1);
         proposalAddresses[proposalId] = _addressOfCharity;
-        //proposalOwner[proposalId] = msg.sender;
-        //benefactorsProposal[msg.sender] = proposalId;
         state[proposalId] = ProposalState.Active;
         emit LogProposalCreated(proposalId, _addressOfCharity);
-        // So the first proposal will have an ID of 0
-        proposalId = proposalId.add(1);
-        return proposalId;
+
+        return proposalId; // <- so it is returning the ID of the created proposal
     }
 
     ///////////////////////////////////
@@ -151,12 +149,14 @@ contract WildcardsQV is Initializable {
             "Does not own a WildCard"
         );
         // Check they have at least 1 wildcards loyalty token:
-        require(amount >= 10**18, " Minimum vote one token");
+        require(amount > 0, "Cannot vote with 0");
+
         // Check they are voting for a valid proposal:
         require(
             state[proposalIdToVoteFor] == ProposalState.Active,
             "Proposal not Active"
         );
+
         // Check that they haven't yet voted for the proposal in this iteration
         require(
             !hasUserVotedForProposalIteration[proposalIteration][msg
@@ -203,14 +203,26 @@ contract WildcardsQV is Initializable {
     //// Iteration changes/////////////
     ///////////////////////////////////
     function distributeFunds() public {
-        require(proposalDeadline < now, "iteration interval not ended");
-        address _thisAddressNotPayable = address(this);
-        address payable _thisAddress = address(uint160(_thisAddressNotPayable)); // <-- this is required to cast address to address payable
+        require(proposalDeadline < now, "Iteration interval not ended");
 
-        // Get current patron of Dragon Token
-        address _currentPatron = wildCardSteward.currentPatron(dragonCardId);
+        // This happens if there is no winner.
+        if (currentHighestVoteCount == 0) {
+            proposalDeadline = now.add(votingInterval);
+            proposalIteration = proposalIteration.add(1);
+            emit LogFundsDistributed(
+                0,
+                0,
+                0,
+                0,
+                proposalDeadline,
+                proposalIteration
+            );
+            return;
+        }
+        address payable _thisAddress = address(this); // <-- this is required to cast address to address payable
+
         // Collect patronage on the WildCard
-        wildCardSteward._collectPatronagePatron(_currentPatron);
+        wildCardSteward._collectPatronage(dragonCardId);
         // Transfer patronage to this contract
         wildCardSteward.withdrawBenefactorFundsTo(_thisAddress);
         // Get balance to distrubute
@@ -223,19 +235,24 @@ contract WildcardsQV is Initializable {
         address payable _addressOfWinner = proposalAddresses[currentWinner];
         _addressOfWinner.transfer(_fundsToDistribute);
 
-        emit LogFundsDistrubuted(
+        // Clean up for next iteration
+        proposalDeadline = now.add(votingInterval);
+        proposalIteration = proposalIteration.add(1);
+        emit LogFundsDistributed(
             _fundsToDistribute,
             totalVotes,
             currentHighestVoteCount,
             currentWinner,
-            now.add(votingInterval),
-            proposalIteration.add(1)
+            proposalDeadline,
+            proposalIteration
         );
-        // Clean up for next iteration
+
         currentHighestVoteCount = 0;
         totalVotes = 0;
-
-        proposalDeadline = now.add(votingInterval);
-        proposalIteration = proposalIteration.add(1);
     }
+
+    ///////////////////////////////////
+    /////////// Fallback /////////////
+    ///////////////////////////////////
+    function() external payable {}
 }
