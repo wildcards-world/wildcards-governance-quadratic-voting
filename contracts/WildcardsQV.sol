@@ -150,7 +150,6 @@ contract WildcardsQV is Initializable {
         );
         // Check they have at least 1 wildcards loyalty token:
 
-        require(amount >= 10**15, "Minimum vote 0.001 loyalty tokens");
         // Check they are voting for a valid proposal:
         require(
             state[proposalIdToVoteFor] == ProposalState.Active,
