@@ -163,9 +163,10 @@ contract WildcardsQV is Initializable {
             wildCardToken.balanceOf(msg.sender) > 0,
             "Does not own a WildCard"
         );
-        // Check they have at least 1 wildcards loyalty token:
 
-        require(amount >= 10**15, "Minimum vote 0.001 loyalty tokens");
+        // Check they have at least 1 unit of wildcards loyalty token:
+        require(amount > 0, "Cannot vote with 0");
+
         // Check they are voting for a valid proposal:
         require(
             state[proposalIdToVoteFor] == ProposalState.Active,
@@ -217,9 +218,22 @@ contract WildcardsQV is Initializable {
     ///////////////////////////////////
     function distributeFunds() public {
         require(proposalDeadline < now, "Iteration interval not ended");
+
+        // This happens if there is no winner.
+        if (currentHighestVoteCount == 0) {
+            proposalDeadline = now.add(votingInterval);
+            proposalIteration = proposalIteration.add(1);
+            emit LogFundsDistributed(
+                0,
+                0,
+                0,
+                0,
+                proposalDeadline,
+                proposalIteration
+            );
+            return;
+        }
         address payable _thisAddress = address(this); // <-- this is required to cast address to address payable
-        // address _thisAddress = address(this);
-        // address payable _thisAddress = address(uint160(_thisAddress)); // <-- this is required to cast address to address payable
 
         // Collect patronage on the WildCard
         wildCardSteward._collectPatronage(dragonCardId);
@@ -235,20 +249,20 @@ contract WildcardsQV is Initializable {
         address payable _addressOfWinner = proposalAddresses[currentWinner];
         _addressOfWinner.transfer(_fundsToDistribute);
 
+        // Clean up for next iteration
+        proposalDeadline = now.add(votingInterval);
+        proposalIteration = proposalIteration.add(1);
         emit LogFundsDistributed(
             _fundsToDistribute,
             totalVotes,
             currentHighestVoteCount,
             currentWinner,
-            now.add(votingInterval),
-            proposalIteration.add(1)
+            proposalDeadline,
+            proposalIteration
         );
-        // Clean up for next iteration
+
         currentHighestVoteCount = 0;
         totalVotes = 0;
-
-        proposalDeadline = now.add(votingInterval);
-        proposalIteration = proposalIteration.add(1);
     }
 
     ///////////////////////////////////
