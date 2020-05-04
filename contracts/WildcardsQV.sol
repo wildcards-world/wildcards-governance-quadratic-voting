@@ -178,11 +178,9 @@ contract WildcardsQV is Initializable {
                 .sender][proposalIdToVoteFor],
             "Already voted on this proposal"
         );
-        // Send their wildcards tokens to the burn address
-        require(
-            loyaltyToken.transferFrom(msg.sender, burnAddress, amount),
-            "Loyalty Token transfer failed"
-        );
+        // Remove these tokens from circulation - this function reverts if there is an issue.
+        loyaltyToken.burnFrom(msg.sender, amount);
+
         // Validate the square root
         require(sqrt.mul(sqrt) == amount, "Square root incorrect");
 
