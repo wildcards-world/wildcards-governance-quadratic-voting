@@ -18,6 +18,8 @@ const addressOfWildCardStewardContract =
 // const addressOfWildCardStewardContract =
 //   "0x6D47CF86F6A490c6410fC082Fd1Ad29CF61492d0";
 
+const wildTomorrowFundAddress = "0xFA53ed45C13A2b86daA0074E7AdA739280635d19";
+
 async function deploy(options, accounts) {
   add({
     contractsData: [{ name: "WildcardsQV", alias: "WildcardsQV" }],
@@ -37,6 +39,11 @@ async function deploy(options, accounts) {
       13,
     ],
   });
+
+  patronageToken.createProposal(wildTomorrowFundAddress);
+  patronageToken.createProposal(accounts[0]); // senda verde
+  patronageToken.createProposal(accounts[0]); // the great whale conservance
+  patronageToken.createProposal(accounts[0]); // darwin animal doctors
 }
 
 module.exports = function(deployer, networkName, accounts) {

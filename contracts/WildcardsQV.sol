@@ -98,6 +98,16 @@ contract WildcardsQV is Initializable {
         wildCardToken = _addressOfWildCardTokenContract;
         wildCardSteward = _addressOfWildCardStewardContract;
         dragonCardId = _dragonCardId;
+
+        // Perhaps this event is Misnamed, but we need an event to tell thegraph that things are starting up.
+        emit LogFundsDistributed(
+            0,
+            0,
+            0,
+            0,
+            proposalDeadline,
+            proposalIteration
+        );
     }
 
     ///////////////////////////////////
