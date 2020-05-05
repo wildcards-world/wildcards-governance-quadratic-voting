@@ -304,6 +304,13 @@
         "implementation": "0x44BCF77AC60294db906f50c36e63af5d4C120A66",
         "admin": "0x3Ec9E348e7e252C6C0A4f6e7e8Acd3375dDb616a",
         "kind": "Upgradeable"
+      },
+      {
+        "address": "0xfDb9F176feD59e127e675FF24dA91f3a3BCB41aA",
+        "version": "2.5.3",
+        "implementation": "0x44BCF77AC60294db906f50c36e63af5d4C120A66",
+        "admin": "0x3Ec9E348e7e252C6C0A4f6e7e8Acd3375dDb616a",
+        "kind": "Upgradeable"
       }
     ]
   },
