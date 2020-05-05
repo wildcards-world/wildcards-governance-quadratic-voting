@@ -27,7 +27,7 @@ async function deploy(options, accounts) {
 
   await push({ ...options, force: true });
 
-  const patronageToken = await create({
+  const wildcardsQV = await create({
     ...options,
     contractAlias: "WildcardsQV",
     methodName: "initialize",
@@ -39,11 +39,6 @@ async function deploy(options, accounts) {
       13,
     ],
   });
-
-  patronageToken.createProposal(wildTomorrowFundAddress);
-  patronageToken.createProposal(accounts[0]); // senda verde
-  patronageToken.createProposal(accounts[0]); // the great whale conservance
-  patronageToken.createProposal(accounts[0]); // darwin animal doctors
 }
 
 module.exports = function(deployer, networkName, accounts) {
