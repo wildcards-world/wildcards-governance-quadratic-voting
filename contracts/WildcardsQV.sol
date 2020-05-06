@@ -40,6 +40,9 @@ contract WildcardsQV is Initializable {
     uint256 public currentWinner;
     uint256 public totalVotes;
 
+    // if a payment fails, the user will be able to pull the amount stored here:
+    mapping(address => uint256) public failedTransferCredits;
+
     ////////////////////////////////////
     //////// Events ///////////////////
     ////////////////////////////////////
@@ -223,6 +226,30 @@ contract WildcardsQV is Initializable {
         );
     }
 
+    function safeFundsTransfer(address payable recipient, uint256 amount)
+        internal
+    {
+        // attempt to send the funds to the recipient
+        (bool success, ) = recipient.call.value(amount)("2300");
+        // if it failed, update their credit balance so they can pull it later
+        if (success == false) {
+            failedTransferCredits[recipient] += amount;
+        }
+    }
+
+    function withdrawAllFailedCredits() public {
+        uint256 amount = failedTransferCredits[msg.sender];
+
+        require(amount != 0);
+        require(address(this).balance >= amount);
+
+        failedTransferCredits[msg.sender] = 0;
+
+        // safeFundsTransfer(msg.sender, amount);
+        // NOTE: this is safe since `transfer` reverts the transaction on failure.
+        msg.sender.transfer(amount);
+    }
+
     ///////////////////////////////////
     //// Iteration changes/////////////
     ///////////////////////////////////
@@ -247,23 +274,35 @@ contract WildcardsQV is Initializable {
 
         // Collect patronage on the WildCard
         wildCardSteward._collectPatronage(dragonCardId);
+
+        uint256 amountRaisedInIteration = wildCardSteward.benefactorFunds(
+            _thisAddress
+        );
+
         // Transfer patronage to this contract
         wildCardSteward.withdrawBenefactorFundsTo(_thisAddress);
-        // Get balance to distrubute
-        uint256 _fundsToDistribute = _thisAddress.balance;
+
         // Send 1% to message caller as incentive
-        msg.sender.transfer(_fundsToDistribute.div(100));
-        // Get remaining balance
-        _fundsToDistribute = _thisAddress.balance;
-        // Send funds to winner
+        uint256 incentiveForCaller = amountRaisedInIteration.div(100);
+        uint256 payoutForWinner = amountRaisedInIteration.sub(
+            incentiveForCaller
+        );
+
+        safeFundsTransfer(msg.sender, incentiveForCaller);
         address payable _addressOfWinner = proposalAddresses[currentWinner];
-        _addressOfWinner.transfer(_fundsToDistribute);
+        safeFundsTransfer(_addressOfWinner, payoutForWinner);
+        // safeFundsTransfer(proposalAddresses[currentWinner], payoutForWinner);
+
+        // msg.sender.transfer(insentiveForCaller);
+
+        // // Send funds to winner
+        // _addressOfWinner.transfer();
 
         // Clean up for next iteration
         proposalDeadline = now.add(votingInterval);
         proposalIteration = proposalIteration.add(1);
         emit LogFundsDistributed(
-            _fundsToDistribute,
+            amountRaisedInIteration,
             totalVotes,
             currentHighestVoteCount,
             currentWinner,
