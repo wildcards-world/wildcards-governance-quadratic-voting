@@ -1,7 +1,7 @@
 {
   "contracts": {
     "WildcardsQV": {
-      "address": "0xF2D9c34884876a36aF9550EA5A6B260F85eAd8c6",
+      "address": "0xc156C73faA39ba40913e31849391aA339C500767",
       "constructorCode": "6080604052604180546001600160a01b03191661dead17905534801561002457600080fd5b506115a6806100346000396000f3fe",
       "bodyBytecodeHash": "869ab3511b016a42308bf6b7b8f2eaa3eb94f93690e1370e305983693a990a39",
       "localBytecodeHash": "6f4fdc26eb699ced040e9595ea45ec63b5663222f9d499ccc2ff823beb5431a9",
@@ -260,10 +260,10 @@
   "proxies": {
     "example-truffle-migrate/WildcardsQV": [
       {
-        "address": "0x6Fcb8458dB48E34a0f96b9172418eC3f6E8b2959",
+        "address": "0x797A3bd81aD500482968F7B3267c23a94aBEEA02",
         "version": "2.5.3",
-        "implementation": "0x0000000000000000000000000000000000000000",
-        "admin": "0xD2Dd5BEF69b07090BB183b7F856Df260d1fBf41d",
+        "implementation": "0xc156C73faA39ba40913e31849391aA339C500767",
+        "admin": "0x96aC89dc3EE17a127134f2D3f5Ea683c5e658a39",
         "kind": "Upgradeable"
       }
     ]
@@ -271,6 +271,6 @@
   "manifestVersion": "2.2",
   "version": "2.5.3",
   "proxyAdmin": {
-    "address": "0xD2Dd5BEF69b07090BB183b7F856Df260d1fBf41d"
+    "address": "0x96aC89dc3EE17a127134f2D3f5Ea683c5e658a39"
   }
 }
