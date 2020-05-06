@@ -1,11 +1,11 @@
 {
   "contracts": {
     "WildcardsQV": {
-      "address": "0x44BCF77AC60294db906f50c36e63af5d4C120A66",
-      "constructorCode": "6080604052604180546001600160a01b03191661dead17905534801561002457600080fd5b50611339806100346000396000f3fe",
-      "bodyBytecodeHash": "ec95f4fbd5eb11af92ee9440287ecfef462175f3f5a17ac36804a221216bbc26",
-      "localBytecodeHash": "536f938264644d07c10703e85d064962553a59dfa0e50e229bf0cb9604d97c2c",
-      "deployedBytecodeHash": "536f938264644d07c10703e85d064962553a59dfa0e50e229bf0cb9604d97c2c",
+      "address": "0xF2D9c34884876a36aF9550EA5A6B260F85eAd8c6",
+      "constructorCode": "6080604052604180546001600160a01b03191661dead17905534801561002457600080fd5b506115a6806100346000396000f3fe",
+      "bodyBytecodeHash": "869ab3511b016a42308bf6b7b8f2eaa3eb94f93690e1370e305983693a990a39",
+      "localBytecodeHash": "6f4fdc26eb699ced040e9595ea45ec63b5663222f9d499ccc2ff823beb5431a9",
+      "deployedBytecodeHash": "6f4fdc26eb699ced040e9595ea45ec63b5663222f9d499ccc2ff823beb5431a9",
       "types": {
         "t_bool": {
           "id": "t_bool",
@@ -74,7 +74,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initialized",
-          "astId": 11623,
+          "astId": 11722,
           "type": "t_bool",
           "src": "757:24:13"
         },
@@ -82,7 +82,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "initializing",
-          "astId": 11625,
+          "astId": 11724,
           "type": "t_bool",
           "src": "876:25:13"
         },
@@ -90,7 +90,7 @@
           "contract": "Initializable",
           "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
           "label": "______gap",
-          "astId": 11687,
+          "astId": 11786,
           "type": "t_array:50<t_uint256>",
           "src": "1982:29:13"
         },
@@ -237,6 +237,14 @@
           "astId": 125,
           "type": "t_uint256",
           "src": "1763:25:1"
+        },
+        {
+          "contract": "WildcardsQV",
+          "path": "contracts/WildcardsQV.sol",
+          "label": "failedTransferCredits",
+          "astId": 129,
+          "type": "t_mapping<t_uint256>",
+          "src": "1876:56:1"
         }
       ],
       "warnings": {
@@ -244,40 +252,7 @@
         "hasSelfDestruct": false,
         "hasDelegateCall": false,
         "hasInitialValuesInDeclarations": true,
-        "uninitializedBaseContracts": [],
-        "storageUncheckedVars": [
-          {
-            "contract": "WildcardsQV",
-            "path": "contracts/WildcardsQV.sol",
-            "label": "state",
-            "astId": 98,
-            "type": "t_mapping<t_enum<WildcardsQV.ProposalState>>",
-            "src": "1010:46:1"
-          }
-        ],
-        "storageDiff": [
-          {
-            "action": "rename",
-            "updated": {
-              "index": 10,
-              "contract": "WildcardsQV",
-              "path": "contracts/WildcardsQV.sol",
-              "label": "latestProposalId",
-              "astId": 84,
-              "type": "t_uint256",
-              "src": "788:31:1"
-            },
-            "original": {
-              "index": 10,
-              "contract": "WildcardsQV",
-              "path": "contracts/WildcardsQV.sol",
-              "label": "proposalId",
-              "astId": 84,
-              "type": "t_uint256",
-              "src": "788:25:1"
-            }
-          }
-        ]
+        "uninitializedBaseContracts": []
       }
     }
   },
@@ -285,31 +260,10 @@
   "proxies": {
     "example-truffle-migrate/WildcardsQV": [
       {
-        "address": "0x4FF99B0a7C638F9d2b4D03ac46B0096Df6b6DB61",
+        "address": "0x6Fcb8458dB48E34a0f96b9172418eC3f6E8b2959",
         "version": "2.5.3",
-        "implementation": "0xDC809FCbAD88f6Ccf79783297D16233e7bc48dC5",
-        "admin": "0x3Ec9E348e7e252C6C0A4f6e7e8Acd3375dDb616a",
-        "kind": "Upgradeable"
-      },
-      {
-        "address": "0xde4d525895c5dF3269736a5A70EcAA54B872893B",
-        "version": "2.5.3",
-        "implementation": "0x44BCF77AC60294db906f50c36e63af5d4C120A66",
-        "admin": "0x3Ec9E348e7e252C6C0A4f6e7e8Acd3375dDb616a",
-        "kind": "Upgradeable"
-      },
-      {
-        "address": "0xc3e69867b430e12774407908762D013FbB511476",
-        "version": "2.5.3",
-        "implementation": "0x44BCF77AC60294db906f50c36e63af5d4C120A66",
-        "admin": "0x3Ec9E348e7e252C6C0A4f6e7e8Acd3375dDb616a",
-        "kind": "Upgradeable"
-      },
-      {
-        "address": "0xfDb9F176feD59e127e675FF24dA91f3a3BCB41aA",
-        "version": "2.5.3",
-        "implementation": "0x44BCF77AC60294db906f50c36e63af5d4C120A66",
-        "admin": "0x3Ec9E348e7e252C6C0A4f6e7e8Acd3375dDb616a",
+        "implementation": "0x0000000000000000000000000000000000000000",
+        "admin": "0xD2Dd5BEF69b07090BB183b7F856Df260d1fBf41d",
         "kind": "Upgradeable"
       }
     ]
@@ -317,6 +271,6 @@
   "manifestVersion": "2.2",
   "version": "2.5.3",
   "proxyAdmin": {
-    "address": "0x3Ec9E348e7e252C6C0A4f6e7e8Acd3375dDb616a"
+    "address": "0xD2Dd5BEF69b07090BB183b7F856Df260d1fBf41d"
   }
 }
