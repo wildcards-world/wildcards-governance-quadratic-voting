@@ -4,7 +4,7 @@ const { add, push, create } = scripts;
 
 // Goerli:
 const addressOfLoyalyTokenContract =
-  "0x64Fde89bae3e52b3b853A0ba8F8184D72a398F5b";
+  "0xd7D8c42Ab5B83aA3D4114e5297989DC27BDfb715";
 const addressOfWildCardTokenContract =
   "0x6Da7DD22A9c1B6bC7b2Ba9A540A37EC786E30eA7";
 const addressOfWildCardStewardContract =

@@ -192,6 +192,7 @@ contract WildcardsQV is Initializable {
                 .sender][proposalIdToVoteFor],
             "Already voted on this proposal"
         );
+
         // Remove these tokens from circulation - this function reverts if there is an issue.
         loyaltyToken.burnFrom(msg.sender, amount);
 
