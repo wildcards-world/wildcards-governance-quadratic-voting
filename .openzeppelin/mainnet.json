@@ -1,0 +1,276 @@
+{
+  "contracts": {
+    "WildcardsQV": {
+      "address": "0xF121bAD53FA2992284466135861Bc0dD1d98810F",
+      "constructorCode": "6080604052604180546001600160a01b03191661dead17905534801561002457600080fd5b506106d1806100346000396000f3fe",
+      "bodyBytecodeHash": "d312a70a852bfd7aa9dd68ab0fa2bf7556b9a1b9d1685514d1504c73784ea165",
+      "localBytecodeHash": "b42ebabb07de9491eca3c8003c93f8b92175d1bb038fa3f0a89ca6d3671922f3",
+      "deployedBytecodeHash": "b42ebabb07de9491eca3c8003c93f8b92175d1bb038fa3f0a89ca6d3671922f3",
+      "types": {
+        "t_bool": {
+          "id": "t_bool",
+          "kind": "elementary",
+          "label": "bool"
+        },
+        "t_uint256": {
+          "id": "t_uint256",
+          "kind": "elementary",
+          "label": "uint256"
+        },
+        "t_array:50<t_uint256>": {
+          "id": "t_array:50<t_uint256>",
+          "valueType": "t_uint256",
+          "length": "50",
+          "kind": "array",
+          "label": "uint256[50]"
+        },
+        "t_address": {
+          "id": "t_address",
+          "kind": "elementary",
+          "label": "address"
+        },
+        "t_address_payable": {
+          "id": "t_address_payable",
+          "kind": "elementary",
+          "label": "address payable"
+        },
+        "t_mapping<t_address_payable>": {
+          "id": "t_mapping<t_address_payable>",
+          "valueType": "t_address_payable",
+          "label": "mapping(key => address payable)",
+          "kind": "mapping"
+        },
+        "t_enum<PlaceholderContract.ProposalState>": {
+          "id": "t_enum<PlaceholderContract.ProposalState>",
+          "kind": "enum",
+          "label": "PlaceholderContract.ProposalState",
+          "members": [
+            "DoesNotExist",
+            "Withdrawn",
+            "Active"
+          ]
+        },
+        "t_mapping<t_enum<PlaceholderContract.ProposalState>>": {
+          "id": "t_mapping<t_enum<PlaceholderContract.ProposalState>>",
+          "valueType": "t_enum<PlaceholderContract.ProposalState>",
+          "label": "mapping(key => PlaceholderContract.ProposalState)",
+          "kind": "mapping"
+        },
+        "t_mapping<t_bool>": {
+          "id": "t_mapping<t_bool>",
+          "valueType": "t_bool",
+          "label": "mapping(key => bool)",
+          "kind": "mapping"
+        },
+        "t_mapping<t_uint256>": {
+          "id": "t_mapping<t_uint256>",
+          "valueType": "t_uint256",
+          "label": "mapping(key => uint256)",
+          "kind": "mapping"
+        }
+      },
+      "storage": [
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initialized",
+          "astId": 11856,
+          "type": "t_bool",
+          "src": "757:24:14"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "initializing",
+          "astId": 11858,
+          "type": "t_bool",
+          "src": "876:25:14"
+        },
+        {
+          "contract": "Initializable",
+          "path": "@openzeppelin/upgrades/contracts/Initializable.sol",
+          "label": "______gap",
+          "astId": 11920,
+          "type": "t_array:50<t_uint256>",
+          "src": "1982:29:14"
+        },
+        {
+          "contract": "PlaceholderContract",
+          "path": "contracts/PlaceholderContract.sol",
+          "label": "admin",
+          "astId": 70,
+          "type": "t_address",
+          "src": "398:20:1"
+        },
+        {
+          "contract": "PlaceholderContract",
+          "path": "contracts/PlaceholderContract.sol",
+          "label": "loyaltyToken",
+          "astId": 72,
+          "type": "t_address",
+          "src": "476:33:1"
+        },
+        {
+          "contract": "PlaceholderContract",
+          "path": "contracts/PlaceholderContract.sol",
+          "label": "wildCardToken",
+          "astId": 74,
+          "type": "t_address",
+          "src": "515:35:1"
+        },
+        {
+          "contract": "PlaceholderContract",
+          "path": "contracts/PlaceholderContract.sol",
+          "label": "wildCardSteward",
+          "astId": 76,
+          "type": "t_address",
+          "src": "556:39:1"
+        },
+        {
+          "contract": "PlaceholderContract",
+          "path": "contracts/PlaceholderContract.sol",
+          "label": "dragonCardId",
+          "astId": 78,
+          "type": "t_uint256",
+          "src": "601:27:1"
+        },
+        {
+          "contract": "PlaceholderContract",
+          "path": "contracts/PlaceholderContract.sol",
+          "label": "votingInterval",
+          "astId": 80,
+          "type": "t_uint256",
+          "src": "678:29:1"
+        },
+        {
+          "contract": "PlaceholderContract",
+          "path": "contracts/PlaceholderContract.sol",
+          "label": "proposalIteration",
+          "astId": 82,
+          "type": "t_uint256",
+          "src": "713:32:1"
+        },
+        {
+          "contract": "PlaceholderContract",
+          "path": "contracts/PlaceholderContract.sol",
+          "label": "latestProposalId",
+          "astId": 84,
+          "type": "t_uint256",
+          "src": "796:31:1"
+        },
+        {
+          "contract": "PlaceholderContract",
+          "path": "contracts/PlaceholderContract.sol",
+          "label": "proposalDeadline",
+          "astId": 86,
+          "type": "t_uint256",
+          "src": "833:31:1"
+        },
+        {
+          "contract": "PlaceholderContract",
+          "path": "contracts/PlaceholderContract.sol",
+          "label": "proposalAddresses",
+          "astId": 90,
+          "type": "t_mapping<t_address_payable>",
+          "src": "895:60:1"
+        },
+        {
+          "contract": "PlaceholderContract",
+          "path": "contracts/PlaceholderContract.sol",
+          "label": "state",
+          "astId": 98,
+          "type": "t_mapping<t_enum<PlaceholderContract.ProposalState>>",
+          "src": "1018:46:1"
+        },
+        {
+          "contract": "PlaceholderContract",
+          "path": "contracts/PlaceholderContract.sol",
+          "label": "hasUserVotedForProposalIteration",
+          "astId": 106,
+          "type": "t_mapping<t_bool>",
+          "src": "1296:104:1"
+        },
+        {
+          "contract": "PlaceholderContract",
+          "path": "contracts/PlaceholderContract.sol",
+          "label": "proposalVotes",
+          "astId": 112,
+          "type": "t_mapping<t_uint256>",
+          "src": "1457:68:1"
+        },
+        {
+          "contract": "PlaceholderContract",
+          "path": "contracts/PlaceholderContract.sol",
+          "label": "topProject",
+          "astId": 116,
+          "type": "t_mapping<t_uint256>",
+          "src": "1572:45:1"
+        },
+        {
+          "contract": "PlaceholderContract",
+          "path": "contracts/PlaceholderContract.sol",
+          "label": "burnAddress",
+          "astId": 119,
+          "type": "t_address",
+          "src": "1623:64:1"
+        },
+        {
+          "contract": "PlaceholderContract",
+          "path": "contracts/PlaceholderContract.sol",
+          "label": "currentHighestVoteCount",
+          "astId": 121,
+          "type": "t_uint256",
+          "src": "1693:38:1"
+        },
+        {
+          "contract": "PlaceholderContract",
+          "path": "contracts/PlaceholderContract.sol",
+          "label": "currentWinner",
+          "astId": 123,
+          "type": "t_uint256",
+          "src": "1737:28:1"
+        },
+        {
+          "contract": "PlaceholderContract",
+          "path": "contracts/PlaceholderContract.sol",
+          "label": "totalVotes",
+          "astId": 125,
+          "type": "t_uint256",
+          "src": "1771:25:1"
+        },
+        {
+          "contract": "PlaceholderContract",
+          "path": "contracts/PlaceholderContract.sol",
+          "label": "failedTransferCredits",
+          "astId": 129,
+          "type": "t_mapping<t_uint256>",
+          "src": "1884:56:1"
+        }
+      ],
+      "warnings": {
+        "hasConstructor": false,
+        "hasSelfDestruct": false,
+        "hasDelegateCall": false,
+        "hasInitialValuesInDeclarations": true,
+        "uninitializedBaseContracts": []
+      }
+    }
+  },
+  "solidityLibs": {},
+  "proxies": {
+    "example-truffle-migrate/WildcardsQV": [
+      {
+        "address": "0x03e051b7e42480Cc9D54F1caB525D2Fea2cF4d83",
+        "version": "2.5.3",
+        "implementation": "0xF121bAD53FA2992284466135861Bc0dD1d98810F",
+        "admin": "0x9f800f737e3163f20f66D42E4815Ba2CAdE420AC",
+        "kind": "Upgradeable"
+      }
+    ]
+  },
+  "manifestVersion": "2.2",
+  "version": "2.5.3",
+  "proxyAdmin": {
+    "address": "0x9f800f737e3163f20f66D42E4815Ba2CAdE420AC"
+  }
+}
