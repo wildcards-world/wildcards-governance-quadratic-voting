@@ -230,7 +230,7 @@ contract WildcardsQV is Initializable {
         internal
     {
         // attempt to send the funds to the recipient
-        (bool success, ) = recipient.call.value(amount)("2300");
+        (bool success, ) = recipient.call.gas(2100).value(amount)("2300");
         // if it failed, update their credit balance so they can pull it later
         if (success == false) {
             failedTransferCredits[recipient] += amount;
