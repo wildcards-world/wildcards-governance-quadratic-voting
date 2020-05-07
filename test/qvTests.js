@@ -354,6 +354,54 @@ describe("WV Contract", function() {
     assert.equal(currentHighestVoteCount0.toNumber(), root.toNumber());
   });
 
+  it("test placeholder upgrade", async () => {
+    wctokenmockup = await WildCardTokenMockup.new();
+    ltokenmockup = await LoyaltyTokenMockup.new();
+    stewardmockup = await StewardMockup.new();
+    qvcontract = await WildcardsQV.new();
+
+    await qvcontract.initialize(
+      _votingInterval,
+      ltokenmockup.address,
+      wctokenmockup.address,
+      stewardmockup.address,
+      _dragonCardId
+    );
+    await qvcontract.createProposal(accounts[2]);
+    const newProposal1OwnerAddressBefore = await qvcontract.proposalAddresses(
+      1
+    );
+    assert.equal(newProposal1OwnerAddressBefore, accounts[2]);
+
+    await qvcontract.updateProposalLinkedAddress(1, accounts[3], {
+      from: accounts[2],
+    });
+    const newProposal1OwnerAddress = await qvcontract.proposalAddresses(1);
+    assert.equal(newProposal1OwnerAddress, accounts[3]);
+
+    /// Actual test:
+
+    const loyaltyTokenBefore = await qvcontract.loyaltyToken();
+    await qvcontract.initialize2();
+    const loyaltyTokenAfter = await qvcontract.loyaltyToken();
+    console.log("token before", loyaltyTokenBefore);
+
+    assert.equal(
+      loyaltyTokenBefore.toLowerCase() !==
+        "0x773c75c2277ed3e402bdefd28ec3b51a3afbd8a4",
+      true
+    );
+    assert.equal(
+      loyaltyTokenAfter.toLowerCase(),
+      "0x773c75c2277ed3e402bdefd28ec3b51a3afbd8a4"
+    );
+
+    await shouldFail.reverting.withMessage(
+      qvcontract.initialize2(),
+      "upgraded"
+    );
+  });
+
   describe("updateProposalLinkedAddress", () => {
     it("should allow the recipient of a proposal to change the proposals recipient.", async () => {
       //     function updateProposalLinkedAddress(

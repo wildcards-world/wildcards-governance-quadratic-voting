@@ -19,7 +19,8 @@ module.exports = {
       network_id: 1,
       provider: new HDWalletProvider(mnemonic, mainnetProviderUrl, 0),
       gas: 4700000,
-      gasPrice: 10000000000, // 10 gwei
+      gasPrice: 25500000000, // 10 gwei
+      // gasPrice: 10000000000, // 10 gwei
       skipDryRun: true,
     },
     rinkeby: {

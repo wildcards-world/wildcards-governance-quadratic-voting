@@ -113,6 +113,28 @@ contract WildcardsQV is Initializable {
         );
     }
 
+    function initialize2() public {
+        require(
+            loyaltyToken !=
+                ILoyaltyToken(0x773c75c2277eD3e402BDEfd28Ec3b51A3AfbD8a4),
+            "upgraded"
+        );
+
+        loyaltyToken = ILoyaltyToken(
+            0x773c75c2277eD3e402BDEfd28Ec3b51A3AfbD8a4
+        );
+
+        // Perhaps this event is Misnamed, but we need an event to tell thegraph that things are starting up.
+        emit LogFundsDistributed(
+            0,
+            0,
+            0,
+            0,
+            proposalDeadline,
+            proposalIteration
+        );
+    }
+
     ///////////////////////////////////
     /////// Config functions //////////
     ///////////////////////////////////
@@ -292,12 +314,6 @@ contract WildcardsQV is Initializable {
         safeFundsTransfer(msg.sender, incentiveForCaller);
         address payable _addressOfWinner = proposalAddresses[currentWinner];
         safeFundsTransfer(_addressOfWinner, payoutForWinner);
-        // safeFundsTransfer(proposalAddresses[currentWinner], payoutForWinner);
-
-        // msg.sender.transfer(insentiveForCaller);
-
-        // // Send funds to winner
-        // _addressOfWinner.transfer();
 
         // Clean up for next iteration
         proposalDeadline = now.add(votingInterval);

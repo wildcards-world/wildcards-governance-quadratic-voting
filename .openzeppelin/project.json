@@ -1,7 +1,7 @@
 {
   "manifestVersion": "2.2",
   "contracts": {
-    "WildcardsQV": "PlaceholderContract"
+    "WildcardsQV": "WildcardsQV"
   },
   "dependencies": {},
   "name": "example-truffle-migrate",
