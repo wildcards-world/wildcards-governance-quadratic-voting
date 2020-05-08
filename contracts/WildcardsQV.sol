@@ -35,7 +35,7 @@ contract WildcardsQV is Initializable {
     mapping(uint256 => mapping(address => mapping(uint256 => bool))) public hasUserVotedForProposalIteration; /// iteration -> userAddress -> proposalId -> bool
     mapping(uint256 => mapping(uint256 => uint256)) public proposalVotes; /// iteration -> proposalId -> num votes
     mapping(uint256 => uint256) public topProject;
-    address burnAddress = 0x000000000000000000000000000000000000dEaD;
+    address burnAddress = 0x000000000000000000000000000000000000dEaD; // This was left here by mistake...
     uint256 public currentHighestVoteCount;
     uint256 public currentWinner;
     uint256 public totalVotes;

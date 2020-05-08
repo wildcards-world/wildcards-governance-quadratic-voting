@@ -19,13 +19,6 @@
         "implementation": "0xF121bAD53FA2992284466135861Bc0dD1d98810F",
         "admin": "0x9f800f737e3163f20f66D42E4815Ba2CAdE420AC",
         "kind": "Upgradeable"
-      },
-      {
-        "address": "0xf207031685a0507894F6a210eE90Cd1f60202E7c",
-        "version": "2.5.3",
-        "implementation": "0x3Cdb74F467fC37291D3Cc56841dd32BDC4b26C86",
-        "admin": "0x9f800f737e3163f20f66D42E4815Ba2CAdE420AC",
-        "kind": "Upgradeable"
       }
     ]
   },
