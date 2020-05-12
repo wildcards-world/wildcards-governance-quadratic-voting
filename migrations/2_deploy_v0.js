@@ -4,7 +4,7 @@ const { add, push, create } = scripts;
 
 // Goerli:
 const addressOfLoyalyTokenContract =
-  "0x64Fde89bae3e52b3b853A0ba8F8184D72a398F5b";
+  "0xd7D8c42Ab5B83aA3D4114e5297989DC27BDfb715";
 const addressOfWildCardTokenContract =
   "0x6Da7DD22A9c1B6bC7b2Ba9A540A37EC786E30eA7";
 const addressOfWildCardStewardContract =
@@ -18,6 +18,8 @@ const addressOfWildCardStewardContract =
 // const addressOfWildCardStewardContract =
 //   "0x6D47CF86F6A490c6410fC082Fd1Ad29CF61492d0";
 
+const wildTomorrowFundAddress = "0xFA53ed45C13A2b86daA0074E7AdA739280635d19";
+
 async function deploy(options, accounts) {
   add({
     contractsData: [{ name: "WildcardsQV", alias: "WildcardsQV" }],
@@ -25,7 +27,7 @@ async function deploy(options, accounts) {
 
   await push({ ...options, force: true });
 
-  const patronageToken = await create({
+  const wildcardsQV = await create({
     ...options,
     contractAlias: "WildcardsQV",
     methodName: "initialize",
