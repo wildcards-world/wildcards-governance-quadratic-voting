@@ -8,9 +8,12 @@ const {
   shouldFail,
   ether,
   expectEvent,
+  expectRevert,
   balance,
   time,
 } = require("openzeppelin-test-helpers");
+// "@openzeppelin/test-helpers"
+//openzeppelin-test-helpers
 
 // Vanilla Mocha test. Increased compatibility with tools that integrate Mocha.
 describe("WV Contract", function() {
@@ -62,7 +65,7 @@ describe("WV Contract", function() {
       _dragonCardId
     );
     // check proposal ID currently zero
-    assert.equal(await qvcontract.proposalId.call(), 0);
+    assert.equal(await qvcontract.latestProposalId.call(), 0);
     // add two proposals
     const addressOfProposal1 = "0x0000000000000000000000000000000000000000";
     const addressOfProposal2 = "0x0000000000000000000000000000000000000001";
@@ -78,10 +81,10 @@ describe("WV Contract", function() {
     const proposalAddress = await qvcontract.proposalAddresses.call(1);
     assert.equal(proposalAddress, addressOfProposal1);
     // check proposalId is now 1
-    assert.equal(await qvcontract.proposalId.call(), 1);
+    assert.equal(await qvcontract.latestProposalId.call(), 1);
     // repeat all the above for second proposal
     await qvcontract.createProposal(addressOfProposal2);
-    assert.equal(await qvcontract.proposalId.call(), 2);
+    assert.equal(await qvcontract.latestProposalId.call(), 2);
     const proposalState = await qvcontract.state.call(2);
     assert.equal(proposalState, 2);
     const proposalAddress2 = await qvcontract.proposalAddresses.call(2);
@@ -123,16 +126,19 @@ describe("WV Contract", function() {
     // create proposal, check expected failure if do not have sufficient balance
     const addressOfProposal1 = "0x0000000000000000000000000000000000000000";
     await qvcontract.createProposal(addressOfProposal1);
+    //     function vote(uint256 proposalIdToVoteFor, uint256 amount, uint256 sqrt)
     await shouldFail.reverting.withMessage(
       qvcontract.vote(1, amount, 0),
-      "Loyalty Token transfer failed"
+      "Insufficient ballance"
     );
     // mint sufficient loyalty tokens, supply incorrect root
     await ltokenmockup.mintLoyaltyTokens(accounts[0], amount);
     await shouldFail.reverting.withMessage(
       qvcontract.vote(1, amount, 0),
-      "Square root incorrect"
+      "Not approved to burn tokens"
     );
+    await ltokenmockup.approve(qvcontract.address, amount);
+
     // pass correct root, should be no failures
     const root = new BN("2000000000");
     await qvcontract.vote(1, amount, root);
@@ -159,6 +165,7 @@ describe("WV Contract", function() {
     await wctokenmockup.createToken(accounts[0]);
     await qvcontract.createProposal(addressOfProposal);
     await ltokenmockup.mintLoyaltyTokens(accounts[0], amount);
+    await ltokenmockup.approve(qvcontract.address, amount);
     await qvcontract.vote(1, amount, root);
     // TESTS
     // check vote counted
@@ -180,6 +187,8 @@ describe("WV Contract", function() {
     assert.equal(hasVoted, true);
     // check expected failure if I try and vote again
     await ltokenmockup.mintLoyaltyTokens(accounts[0], amount);
+    await ltokenmockup.approve(qvcontract.address, amount);
+
     await shouldFail.reverting.withMessage(
       qvcontract.vote(1, amount, root),
       "Already voted on this proposal"
@@ -201,6 +210,7 @@ describe("WV Contract", function() {
     const user2 = accounts[1];
     await wctokenmockup.createToken(user2);
     await ltokenmockup.mintLoyaltyTokens(user2, amount);
+    await ltokenmockup.approve(qvcontract.address, amount, { from: user2 });
     await qvcontract.vote(2, amount, root, { from: user2 });
     const currentWinner2 = await qvcontract.currentWinner.call();
     assert.equal(currentWinner2, 2);
@@ -239,6 +249,7 @@ describe("WV Contract", function() {
     await wctokenmockup.createToken(user0);
     await qvcontract.createProposal(addressOfProposal1);
     await ltokenmockup.mintLoyaltyTokens(user0, amount0);
+    await ltokenmockup.approve(qvcontract.address, amount0);
     await qvcontract.vote(1, amount0, root0);
     // vote on proposal 1:
     const user1 = accounts[1];
@@ -248,6 +259,7 @@ describe("WV Contract", function() {
     await wctokenmockup.createToken(user1);
     await qvcontract.createProposal(addressOfProposal2);
     await ltokenmockup.mintLoyaltyTokens(user1, amount1);
+    await ltokenmockup.approve(qvcontract.address, amount1, { from: user1 });
     await qvcontract.vote(2, amount1, root1, { from: user1 });
     // THE TESTS
     // top up steward so it can send us back the funds
@@ -340,5 +352,85 @@ describe("WV Contract", function() {
     assert.equal(totalVotes0.toNumber(), root.toNumber());
     const currentHighestVoteCount0 = await qvcontract.currentHighestVoteCount.call();
     assert.equal(currentHighestVoteCount0.toNumber(), root.toNumber());
+  });
+
+  describe("updateProposalLinkedAddress", () => {
+    it("should allow the recipient of a proposal to change the proposals recipient.", async () => {
+      //     function updateProposalLinkedAddress(
+      //     uint256 proposalId,
+      //     address payable newOrganisationAddress
+      // )
+      // SETUP CONTRACTS
+      wctokenmockup = await WildCardTokenMockup.new();
+      ltokenmockup = await LoyaltyTokenMockup.new();
+      stewardmockup = await StewardMockup.new();
+      qvcontract = await WildcardsQV.new();
+
+      await qvcontract.initialize(
+        _votingInterval,
+        ltokenmockup.address,
+        wctokenmockup.address,
+        stewardmockup.address,
+        _dragonCardId
+      );
+      await qvcontract.createProposal(accounts[2]);
+      const newProposal1OwnerAddressBefore = await qvcontract.proposalAddresses(
+        1
+      );
+      assert.equal(newProposal1OwnerAddressBefore, accounts[2]);
+
+      await qvcontract.updateProposalLinkedAddress(1, accounts[3], {
+        from: accounts[2],
+      });
+      const newProposal1OwnerAddress = await qvcontract.proposalAddresses(1);
+      assert.equal(newProposal1OwnerAddress, accounts[3]);
+    });
+    it("should NOT allow the another address to change the proposals recipient.", async () => {
+      // SETUP CONTRACTS
+      wctokenmockup = await WildCardTokenMockup.new();
+      ltokenmockup = await LoyaltyTokenMockup.new();
+      stewardmockup = await StewardMockup.new();
+      qvcontract = await WildcardsQV.new();
+
+      await qvcontract.initialize(
+        _votingInterval,
+        ltokenmockup.address,
+        wctokenmockup.address,
+        stewardmockup.address,
+        _dragonCardId
+      );
+
+      await qvcontract.createProposal(accounts[1]);
+      await shouldFail.reverting.withMessage(
+        qvcontract.updateProposalLinkedAddress(1, accounts[1], {
+          from: accounts[0],
+        }),
+        "Not owner of proposal"
+      );
+    });
+    it("should NOT allow the proposal owner to change the proposals to the same address.", async () => {
+      // SETUP CONTRACTS
+      wctokenmockup = await WildCardTokenMockup.new();
+      ltokenmockup = await LoyaltyTokenMockup.new();
+      stewardmockup = await StewardMockup.new();
+      qvcontract = await WildcardsQV.new();
+
+      await qvcontract.initialize(
+        _votingInterval,
+        ltokenmockup.address,
+        wctokenmockup.address,
+        stewardmockup.address,
+        _dragonCardId
+      );
+
+      await qvcontract.createProposal(accounts[1]);
+
+      await shouldFail.reverting.withMessage(
+        qvcontract.updateProposalLinkedAddress(1, accounts[1], {
+          from: accounts[1],
+        }),
+        "Cannot change organisations address to itself"
+      );
+    });
   });
 });
