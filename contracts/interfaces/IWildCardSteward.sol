@@ -1,7 +1,6 @@
-pragma solidity ^0.5.1;
+pragma solidity ^0.6.0;
 
 import "@nomiclabs/buidler/console.sol";
-
 
 interface IWildCardSteward {
     function withdrawBenefactorFundsTo(address payable benefactor) external;

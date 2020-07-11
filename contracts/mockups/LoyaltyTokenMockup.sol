@@ -1,8 +1,7 @@
-pragma solidity ^0.5.1;
+pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
 import "@nomiclabs/buidler/console.sol";
-
 
 contract LoyaltyTokenMockup {
     using SafeMath for uint256;
@@ -28,10 +27,11 @@ contract LoyaltyTokenMockup {
         }
     }
 
-    function transferFrom(address _from, address _to, uint256 _amount)
-        public
-        returns (bool)
-    {
+    function transferFrom(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) public returns (bool) {
         if (balances[_from] >= _amount) {
             balances[_from] = balances[_from].sub(_amount);
             balances[_to] = balances[_to].add(_amount);

@@ -1,4 +1,4 @@
-pragma solidity 0.5.15;
+pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/ERC20.sol";
 import "@nomiclabs/buidler/console.sol";
@@ -6,8 +6,7 @@ import "./interfaces/ILoyaltyToken.sol";
 import "./interfaces/IWildCardToken.sol";
 import "./interfaces/IWildCardSteward.sol";
 
-
-contract WildcardsQV is Initializable {
+contract WildcardsQV_v0 is Initializable {
     using SafeMath for uint256;
 
     //////// MASTER //////////////
@@ -32,7 +31,8 @@ contract WildcardsQV is Initializable {
 
     //////// DAO / VOTE specific //////////
     // TODO: - we can replace `hasUserVotedForProposalIniteration` value with `userProposalVotes` in the future and allow user to vote multiple times
-    mapping(uint256 => mapping(address => mapping(uint256 => bool))) public hasUserVotedForProposalIteration; /// iteration -> userAddress -> proposalId -> bool
+    mapping(uint256 => mapping(address => mapping(uint256 => bool)))
+        public hasUserVotedForProposalIteration; /// iteration -> userAddress -> proposalId -> bool
     mapping(uint256 => mapping(uint256 => uint256)) public proposalVotes; /// iteration -> proposalId -> num votes
     mapping(uint256 => uint256) public topProject;
     address burnAddress = 0x000000000000000000000000000000000000dEaD;
@@ -168,9 +168,11 @@ contract WildcardsQV is Initializable {
     ///////////////////////////////////
     /////// vote function  ///////////
     ///////////////////////////////////
-    function vote(uint256 proposalIdToVoteFor, uint256 amount, uint256 sqrt)
-        external
-    {
+    function vote(
+        uint256 proposalIdToVoteFor,
+        uint256 amount,
+        uint256 sqrt
+    ) external {
         // Check they are a wildcards user
         require(
             wildCardToken.balanceOf(msg.sender) > 0,
@@ -318,5 +320,6 @@ contract WildcardsQV is Initializable {
     ///////////////////////////////////
     /////////// Fallback /////////////
     ///////////////////////////////////
-    function() external payable {}
+    //function() external payable {}
+    fallback() external payable {} //v6 change
 }

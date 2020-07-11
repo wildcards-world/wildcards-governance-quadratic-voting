@@ -10,4 +10,24 @@ task("accounts", "Prints the list of accounts", async () => {
   }
 });
 
-module.exports = {};
+module.exports = {
+  defaultNetwork: "buidlerevm",
+  networks: {
+    buidlerevm: {
+      gas: 95000000,
+      blockGasLimit: 95000000,
+    },
+  },
+  reporterOptions: {
+    currency: "USD",
+    gasPrice: 25, //in gwei
+  },
+  solc: {
+    version: "0.6.10",
+    optimizer: {
+      enabled: true,
+      runs: 200,
+    },
+    evmVersion: "constantinople",
+  },
+};

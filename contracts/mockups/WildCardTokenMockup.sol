@@ -1,7 +1,6 @@
-pragma solidity ^0.5.1;
+pragma solidity ^0.6.0;
 
 import "@nomiclabs/buidler/console.sol";
-
 
 contract WildCardTokenMockup {
     mapping(address => uint256) balances;

@@ -1,4 +1,4 @@
-const WildcardsQV = artifacts.require("WildcardsQV");
+const WildcardsQV = artifacts.require("WildcardsQV_v0");
 const WildCardTokenMockup = artifacts.require("WildCardTokenMockup");
 const LoyaltyTokenMockup = artifacts.require("LoyaltyTokenMockup");
 const StewardMockup = artifacts.require("StewardMockup");

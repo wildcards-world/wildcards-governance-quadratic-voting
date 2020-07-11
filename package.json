@@ -11,17 +11,17 @@
   "author": "wildcards",
   "license": "MIT",
   "dependencies": {
-    "@openzeppelin/contracts-ethereum-package": "^2.2.3",
-    "@openzeppelin/upgrades": "^2.5.3",
-    "openzeppelin-test-helpers": "^0.2.0",
-    "@truffle/hdwallet-provider": "^1.0.34"
+    "@openzeppelin/contracts-ethereum-package": "^3.0.0",
+    "@openzeppelin/upgrades": "^2.8.0",
+    "@truffle/hdwallet-provider": "^1.0.34",
+    "openzeppelin-test-helpers": "^0.2.0"
   },
   "devDependencies": {
     "@nomiclabs/buidler": "^1.2.0",
     "@nomiclabs/buidler-truffle5": "^1.2.0",
     "@nomiclabs/buidler-web3": "^1.2.0",
-    "@openzeppelin/cli": "^2.8.2",
-    "@openzeppelin/test-helpers": "^0.5.1",
+    "@openzeppelin/cli": "2.8.2",
+    "@openzeppelin/test-helpers": "0.5.1",
     "chai": "^4.2.0",
     "eth-gas-reporter": "^0.2.12",
     "solidity-coverage": "^0.7.0-beta.3",
