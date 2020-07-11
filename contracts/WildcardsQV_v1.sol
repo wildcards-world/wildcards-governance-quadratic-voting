@@ -6,6 +6,7 @@ import "./interfaces/ILoyaltyToken.sol";
 import "./interfaces/IWildCardToken.sol";
 import "./interfaces/IWildCardSteward.sol";
 import "./VRFConsumerBase.sol";
+import "./ERC721VoterReward.sol";
 
 contract WildcardsQV_v1 is Initializable, VRFConsumerBase {
     using SafeMath for uint256;
@@ -43,6 +44,15 @@ contract WildcardsQV_v1 is Initializable, VRFConsumerBase {
 
     // if a payment fails, the user will be able to pull the amount stored here:
     mapping(address => uint256) public failedTransferCredits;
+
+    //////// Contract v1 - New variables //////////
+    mapping(uint256 => mapping(address => bool))
+        public hasUserVotedThisIteration; /// iteration -> userAddress -> bool
+    mapping(uint256 => address[]) public usersWhoVoted;
+    bytes32 internal keyHash;
+    uint256 internal fee;
+
+    ERC721VoterReward public assetToken; // ERC721 NFT.
 
     ////////////////////////////////////
     //////// Events ///////////////////
@@ -118,6 +128,8 @@ contract WildcardsQV_v1 is Initializable, VRFConsumerBase {
     // The psuedoConstructor we inherit from ensure this can only be called once
     function upgradeToV1(address _vrfCoordinator, address _link) public {
         psuedoConstructor(_vrfCoordinator, _link);
+        keyHash = 0xced103054e349b8dfb51352f0f8fa9b5d20dde3d06f9f43cb2b85bc64b238205;
+        fee = 10**18;
     }
 
     ///////////////////////////////////
@@ -227,6 +239,12 @@ contract WildcardsQV_v1 is Initializable, VRFConsumerBase {
         }
 
         totalVotes = totalVotes.add(sqrt);
+
+        if (!hasUserVotedThisIteration[proposalIteration][msg.sender]) {
+            hasUserVotedThisIteration[proposalIteration][msg.sender] = true;
+            usersWhoVoted[proposalIteration].push(msg.sender);
+        }
+
         emit LogVote(
             proposalIdToVoteFor,
             sqrt,
@@ -260,18 +278,39 @@ contract WildcardsQV_v1 is Initializable, VRFConsumerBase {
         msg.sender.transfer(amount);
     }
 
+    function rewardDaoVoter(uint256 userProvidedSeed)
+        public
+        returns (bytes32 requestId)
+    {
+        require(
+            LINK.balanceOf(address(this)) > fee,
+            "Not enough LINK - fill contract with faucet"
+        );
+        bytes32 _requestId = requestRandomness(keyHash, fee, userProvidedSeed);
+        return _requestId;
+    }
+
     function fulfillRandomness(bytes32 requestId, uint256 randomness)
         internal
         override
     {
+        // Using proposalIteration - 1 since this is a callback and iteration would have increased...
+        uint256 result = randomness.mod(
+            usersWhoVoted[proposalIteration - 1].length
+        );
+        address winner = usersWhoVoted[proposalIteration - 1][result];
         // Get randomness and add it to our results
-        console.log(randomness);
+        sendRewardToDaoVoter(winner);
+    }
+
+    function sendRewardToDaoVoter(address winner) {
+        //logic here.
     }
 
     ///////////////////////////////////
     //// Iteration changes/////////////
     ///////////////////////////////////
-    function distributeFunds() public {
+    function distributeFunds(uint256 userProvidedSeed) public {
         require(proposalDeadline < now, "Iteration interval not ended");
 
         // This happens if there is no winner.
@@ -288,11 +327,15 @@ contract WildcardsQV_v1 is Initializable, VRFConsumerBase {
             );
             return;
         }
-        address payable _thisAddress = address(this); // <-- this is required to cast address to address payable
+        // If there is only one voter, no randomness needed for reward.
+        if (usersWhoVoted[proposalIteration].length == 1) {
+            sendRewardToDaoVoter(usersWhoVoted[proposalIteration][0]);
+        } else {
+            rewardDaoVoter(userProvidedSeed);
+        }
 
         // Transfer patronage to this contract
-        wildCardSteward.withdrawBenefactorFundsTo(_thisAddress);
-
+        wildCardSteward.withdrawBenefactorFundsTo(payable(this));
         uint256 amountRaisedInIteration = address(this).balance;
 
         if (amountRaisedInIteration > 0) {
@@ -326,6 +369,5 @@ contract WildcardsQV_v1 is Initializable, VRFConsumerBase {
     ///////////////////////////////////
     /////////// Fallback /////////////
     ///////////////////////////////////
-
     fallback() external payable {}
 }
