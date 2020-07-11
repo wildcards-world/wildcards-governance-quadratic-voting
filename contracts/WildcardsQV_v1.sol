@@ -52,7 +52,7 @@ contract WildcardsQV_v1 is Initializable, VRFConsumerBase {
     bytes32 internal keyHash;
     uint256 internal fee;
 
-    ERC721VoterReward public assetToken; // ERC721 NFT.
+    //ERC721VoterReward public assetToken; // ERC721 NFT.
 
     ////////////////////////////////////
     //////// Events ///////////////////
@@ -279,7 +279,7 @@ contract WildcardsQV_v1 is Initializable, VRFConsumerBase {
     }
 
     function rewardDaoVoter(uint256 userProvidedSeed)
-        public
+        internal
         returns (bytes32 requestId)
     {
         require(
@@ -303,7 +303,7 @@ contract WildcardsQV_v1 is Initializable, VRFConsumerBase {
         sendRewardToDaoVoter(winner);
     }
 
-    function sendRewardToDaoVoter(address winner) {
+    function sendRewardToDaoVoter(address winner) internal {
         //logic here.
     }
 
