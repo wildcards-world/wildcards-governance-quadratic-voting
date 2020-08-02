@@ -6,7 +6,8 @@ import "./interfaces/ILoyaltyToken.sol";
 import "./interfaces/IWildCardToken.sol";
 import "./interfaces/IWildCardSteward.sol";
 import "./VRFConsumerBase.sol";
-import "./ERC721VoterReward.sol";
+
+//import "./ERC721VoterReward.sol";
 
 contract WildcardsQV_v1 is Initializable, VRFConsumerBase {
     using SafeMath for uint256;
