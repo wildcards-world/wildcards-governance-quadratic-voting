@@ -278,7 +278,10 @@ contract WildcardsQV_v1 is Initializable, VRFConsumerBase {
         msg.sender.transfer(amount);
     }
 
-    function rewardDaoVoter(uint256 userProvidedSeed)
+    ///////////////////////////////////
+    //// Reward DAO voter//////////////
+    ///////////////////////////////////
+    function requestRandomnessToRewardDaoVoter(uint256 userProvidedSeed)
         internal
         returns (bytes32 requestId)
     {
@@ -331,7 +334,7 @@ contract WildcardsQV_v1 is Initializable, VRFConsumerBase {
         if (usersWhoVoted[proposalIteration].length == 1) {
             sendRewardToDaoVoter(usersWhoVoted[proposalIteration][0]);
         } else {
-            rewardDaoVoter(userProvidedSeed);
+            requestRandomnessToRewardDaoVoter(userProvidedSeed);
         }
 
         // Transfer patronage to this contract
@@ -367,7 +370,7 @@ contract WildcardsQV_v1 is Initializable, VRFConsumerBase {
     }
 
     ///////////////////////////////////
-    /////////// Fallback /////////////
+    /////////// Fallback //////////////
     ///////////////////////////////////
     fallback() external payable {}
 }
