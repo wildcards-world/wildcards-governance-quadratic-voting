@@ -87,9 +87,7 @@ contract WildcardsQV_v1 is Initializable {
         uint256 _votingInterval,
         ILoyaltyToken _addressOfLoyalyTokenContract,
         IWildCardToken _addressOfWildCardTokenContract,
-        IWildCardSteward _addressOfWildCardStewardContract,
-        address _vrfCoordinator,
-        address _link
+        IWildCardSteward _addressOfWildCardStewardContract
     ) public initializer {
         admin = msg.sender;
         votingInterval = _votingInterval;
@@ -133,6 +131,11 @@ contract WildcardsQV_v1 is Initializable {
             state[_proposalId] = ProposalState.Withdrawn;
         }
         emit LogProposalStateChange(_proposalId, newState);
+    }
+
+    function increaseInterval(uint256 time) external onlyAdmin {
+        require(time <= 8640000); // Not more than 100 days
+        proposalDeadline = proposalDeadline.add(time);
     }
 
     ///////////////////////////////////
@@ -221,12 +224,6 @@ contract WildcardsQV_v1 is Initializable {
         }
 
         totalVotes = totalVotes.add(sqrt);
-
-        if (!hasUserVotedThisIteration[proposalIteration][msg.sender]) {
-            hasUserVotedThisIteration[proposalIteration][msg.sender] = true;
-            usersWhoVoted[proposalIteration].push(msg.sender);
-        }
-
         emit LogVote(
             proposalIdToVoteFor,
             sqrt,
